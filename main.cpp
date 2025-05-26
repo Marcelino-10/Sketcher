@@ -1,16 +1,16 @@
 #include <Windows.h>
 #include <commdlg.h>
 #include "Point.h"
-#include "Shape.h"
-#include "Filling.h"
-#include "BezierCurve.h"
-#include "BezierCurveMatrix.h"
-#include "BezierCurveMidpoint.h"
-#include "HermiteCurve.h"
-#include "CardinalSpline.h"
-#include "GeneralPolygon.h"
-#include "LinesDDA.h"
-#include "FloodFilling.h"
+#include "Shapes/Shape.h"
+#include "Filling/Filling.h"
+#include "Shapes/BezierCurve.h"
+#include "Shapes/BezierCurveMatrix.h"
+#include "Shapes/BezierCurveMidpoint.h"
+#include "Shapes/HermiteCurve.h"
+#include "Shapes/CardinalSpline.h"
+#include "Shapes/GeneralPolygon.h"
+#include "Shapes/LinesDDA.h"
+#include "Filling/FloodFilling.h"
 
 // shapes id
 #define BezierCurve_ID 1
@@ -180,7 +180,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             CreateWindow(
                     "BUTTON", "Pick a Filling Color",
                     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                    900, 20, 100, 40,
+                    800, 20, 200, 40,
                     hwnd, (HMENU)ColorFillingPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
             break;
 

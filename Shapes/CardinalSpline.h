@@ -2,7 +2,7 @@
 #define GRAPHICSPROJECT_CARDINALSPLINE_H
 
 #include "Shape.h"
-#include "Point.h"
+#include "../Point.h"
 #include "HermiteCurve.h"
 #include <vector>
 

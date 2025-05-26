@@ -2,7 +2,7 @@
 #define GRAPHICSPROJECT_FILLING_H
 
 #include <windows.h>
-#include "Point.h"
+#include "../Point.h"
 
 class Filling {
 protected:
