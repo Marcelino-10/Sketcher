@@ -12,8 +12,8 @@ class BezierCurveMidpoint : public Shape {
     int numPoints;
 
 public:
-    BezierCurveMidpoint(vector<Point> &v, int numPoints);
-    void draw(HDC hdc);
+    BezierCurveMidpoint(vector<Point> &v, int numPoints, COLORREF c);
+    void draw(HDC hdc, COLORREF c);
     void BezierCurveDrawing(HDC hdc, vector<Point> p, COLORREF c);
 };
 

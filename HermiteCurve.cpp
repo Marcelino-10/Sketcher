@@ -1,8 +1,8 @@
 #include "HermiteCurve.h"
 
-HermiteCurve::HermiteCurve(vector<Point> &v, int numPoints) : v(v), numPoints(numPoints) {}
+HermiteCurve::HermiteCurve(vector<Point> &v, int numPoints, COLORREF c) : Shape(c), v(v), numPoints(numPoints) {}
 
-void HermiteCurve::draw(HDC hdc) {
+void HermiteCurve::draw(HDC hdc, COLORREF c) {
     int mat[][4] = {{2, 1, -2, 1}, {-3, -2, 3, -1}, {0, 1, 0, 0}, {1, 0, 0, 0}};
     double step = 1.0 / numPoints;
     for (double t = 0; t < 1; t += step) {
@@ -29,6 +29,6 @@ void HermiteCurve::draw(HDC hdc) {
             else if(i == 1)
                 p.y = sum;
         }
-        SetPixel(hdc, Round(p.x), Round(p.y), RGB(255, 255, 255));
+        SetPixel(hdc, Round(p.x), Round(p.y), c);
     }
 }

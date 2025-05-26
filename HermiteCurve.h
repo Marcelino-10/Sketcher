@@ -12,8 +12,8 @@ class HermiteCurve : public Shape {
     int numPoints;
 
 public:
-    HermiteCurve(vector<Point> &v, int numPoints);
-    void draw(HDC hdc);
+    HermiteCurve(vector<Point> &v, int numPoints, COLORREF c);
+    void draw(HDC hdc, COLORREF c);
 };
 
 

@@ -11,8 +11,8 @@ using namespace std;
 class GeneralPolygon : public Shape {
     vector<Point> v;
 public:
-    GeneralPolygon(vector<Point> &v);
-    void draw(HDC hdc);
+    GeneralPolygon(vector<Point> &v, COLORREF c);
+    void draw(HDC hdc, COLORREF c);
 };
 
 #endif //GRAPHICSPROJECT_GENERALPOLYGON_H

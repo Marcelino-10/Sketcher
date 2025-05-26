@@ -10,8 +10,8 @@ using namespace std;
 class LinesDDA : public Shape{
     Point p1, p2;
 public:
-    LinesDDA(Point p1, Point p2);
-    void draw(HDC hdc) override;
+    LinesDDA(Point p1, Point p2, COLORREF c);
+    void draw(HDC hdc, COLORREF c) override;
 };
 
 

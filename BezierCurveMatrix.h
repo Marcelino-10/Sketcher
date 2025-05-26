@@ -12,8 +12,8 @@ class BezierCurveMatrix : public Shape {
     int numPoints;
 
 public:
-    BezierCurveMatrix(vector<Point> &v, int numPoints);
-    void draw(HDC hdc);
+    BezierCurveMatrix(vector<Point> &v, int numPoints, COLORREF c);
+    void draw(HDC hdc, COLORREF c);
 };
 
 

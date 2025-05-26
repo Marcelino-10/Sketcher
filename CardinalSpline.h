@@ -14,8 +14,8 @@ class CardinalSpline : public Shape {
     int numPoints;
 
 public:
-    CardinalSpline(vector<Point> v, int c, int numPoints);
-    void draw(HDC hdc);
+    CardinalSpline(vector<Point> v, int c, int numPoints, COLORREF co);
+    void draw(HDC hdc, COLORREF c);
 };
 
 

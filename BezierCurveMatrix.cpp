@@ -1,8 +1,8 @@
 #include "BezierCurveMatrix.h"
 
-BezierCurveMatrix::BezierCurveMatrix(vector<Point> &v, int numPoints) : v(v), numPoints(numPoints){}
+BezierCurveMatrix::BezierCurveMatrix(vector<Point> &v, int numPoints, COLORREF c) : Shape(c), v(v), numPoints(numPoints){}
 
-void BezierCurveMatrix::draw(HDC hdc) {
+void BezierCurveMatrix::draw(HDC hdc, COLORREF c) {
     int bezierMatrix[][4] = {{-1, 3, -3, 1},
                              {3, -6, 3, 0},
                              {-3, 3, 0, 0},
@@ -34,6 +34,6 @@ void BezierCurveMatrix::draw(HDC hdc) {
                 p.y = sum;
 
         }
-        SetPixel(hdc, Round(p.x), Round(p.y), RGB(255, 255, 255));
+        SetPixel(hdc, Round(p.x), Round(p.y), c);
     }
 }

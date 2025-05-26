@@ -1,16 +1,16 @@
-#include "FloodFill.h"
+#include "FloodFilling.h"
 
-FloodFill::FloodFill(COLORREF cf, COLORREF cb, Point begin) : Filling(cf, cb), begin(begin) {}
+FloodFilling::FloodFilling(COLORREF cf, COLORREF cb, Point begin) : Filling(cf, cb), begin(begin) {}
 
-void FloodFill::fill(HDC hdc) {
+void FloodFilling::fill(HDC hdc) {
     stack<Point> st;
     st.emplace(begin);
     while(!st.empty()){
         Point p = st.top();
         st.pop();
-        COLORREF c = GetPixel(hdc, p.x, p.y);
+        COLORREF c = GetPixel(hdc, (int) p.x, (int) p.y);
         if(c == cf || c == cb) continue;
-        SetPixel(hdc, p.x, p.y, cf);
+        SetPixel(hdc, (int) p.x, (int) p.y, cf);
         st.emplace(p.x + 1, p.y);
         st.emplace(p.x - 1, p.y);
         st.emplace(p.x, p.y + 1);

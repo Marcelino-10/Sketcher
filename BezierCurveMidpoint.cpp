@@ -1,9 +1,9 @@
 #include "BezierCurveMidpoint.h"
 
-BezierCurveMidpoint::BezierCurveMidpoint(vector<Point> &v, int numPoints) : v(v), numPoints(numPoints){}
+BezierCurveMidpoint::BezierCurveMidpoint(vector<Point> &v, int numPoints, COLORREF c) : Shape(c), v(v), numPoints(numPoints){}
 
-void BezierCurveMidpoint::draw(HDC hdc) {
-    this->BezierCurveDrawing(hdc, v, RGB(255, 255, 255));
+void BezierCurveMidpoint::draw(HDC hdc, COLORREF c) {
+    this->BezierCurveDrawing(hdc, v, c);
 }
 
 void BezierCurveMidpoint::BezierCurveDrawing(HDC hdc, vector<Point> p, COLORREF c) {

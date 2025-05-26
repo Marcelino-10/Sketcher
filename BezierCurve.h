@@ -12,8 +12,8 @@ class BezierCurve : public Shape {
     int numPoints;
 
 public:
-    BezierCurve(vector<Point> &v, int numPoints);
-    void draw(HDC hdc) override;
+    BezierCurve(vector<Point> &v, int numPoints, COLORREF c);
+    void draw(HDC hdc, COLORREF c) override;
     Point recBezierCurve(int l, int r, vector<Point> &v, double t);
 };
 

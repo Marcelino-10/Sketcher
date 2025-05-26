@@ -1,12 +1,12 @@
 #include "BezierCurve.h"
 
-BezierCurve::BezierCurve(vector<Point> &v, int numPoints) : v(v), numPoints(numPoints) {}
+BezierCurve::BezierCurve(vector<Point> &v, int numPoints, COLORREF c) : Shape(c), v(v), numPoints(numPoints) {}
 
-void BezierCurve::draw(HDC hdc) {
+void BezierCurve::draw(HDC hdc, COLORREF c) {
     double step = 1.0 / numPoints;
     for(double t = 0; t < 1; t += step){
         Point pi = recBezierCurve(0, v.size() - 1, v, t);
-        SetPixel(hdc, Round(pi.x), Round(pi.y), RGB(255, 255, 255));
+        SetPixel(hdc, Round(pi.x), Round(pi.y), c);
     }
 }
 

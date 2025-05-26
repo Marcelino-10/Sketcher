@@ -4,8 +4,12 @@
 #include "windows.h"
 
 class Shape {
+    COLORREF c;
 public:
-    virtual void draw(HDC hdc) = 0;
+    inline Shape(COLORREF c){
+        this->c = c;
+    }
+    virtual void draw(HDC hdc, COLORREF c) = 0;
 };
 
 #endif //GRAPHICSPROJECT_SHAPE_H
