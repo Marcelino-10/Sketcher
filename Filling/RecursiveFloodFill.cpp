@@ -3,16 +3,17 @@
 RecursiveFloodFill::RecursiveFloodFill(COLORREF cf, COLORREF cb, Point begin) : Filling(cf, cb), begin(begin){}
 
 void RecursiveFloodFill::fill(HDC hdc) {
-    COLORREF c = GetPixel(hdc, begin.x, begin.y);
+    recFill(hdc, (int) begin.x, (int) begin.y);
+}
+
+void RecursiveFloodFill::recFill(HDC hdc, int x, int y) {
+    COLORREF c = GetPixel(hdc, x, y);
     if(c == cf || c == cb)
         return;
 
-    begin.x--;
-    fill(hdc);
-    begin.y--;
-    fill(hdc);
-    begin.x++;
-    fill(hdc);
-    begin.y++;
-    fill(hdc);
+    SetPixel(hdc, x, y, cf);
+    recFill(hdc, x + 1, y);
+    recFill(hdc, x - 1, y);
+    recFill(hdc, x, y + 1);
+    recFill(hdc, x, y - 1);
 }

@@ -2,7 +2,7 @@
 #define GRAPHICSPROJECT_BEZIERCURVE_H
 
 #include "Shape.h"
-#include "../Point.h"
+#include "Point.h"
 #include <vector>
 
 using namespace std;

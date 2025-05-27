@@ -8,6 +8,7 @@ class RecursiveFloodFill : public Filling {
 public:
     RecursiveFloodFill(COLORREF cf, COLORREF cb, Point begin);
     void fill(HDC hdc);
+    void recFill(HDC hdc, int x, int y);
 };
 
 

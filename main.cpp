@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include <commdlg.h>
-#include "Point.h"
+#include "Shapes/Point.h"
 #include "Shapes/Shape.h"
 #include "Filling/Filling.h"
 #include "Shapes/BezierCurve.h"
@@ -10,7 +10,12 @@
 #include "Shapes/CardinalSpline.h"
 #include "Shapes/GeneralPolygon.h"
 #include "Shapes/LinesDDA.h"
+#include "Shapes/LineBresenham.h"
+#include "Shapes/CircleBresenham.h"
 #include "Filling/FloodFilling.h"
+#include "Filling/RecursiveFloodFill.h"
+#include "Filling/ConvexFilling.h"
+
 
 // shapes id
 #define BezierCurve_ID 1
@@ -25,7 +30,7 @@
 #define Circle_ID 10
 #define CircleBresenham_ID 10
 #define CirclePolar_ID 11
-#define CirlceIterativePolar_ID 12
+#define CircleIterativePolar_ID 12
 
 // filling id
 #define ConvexScanLine_ID 100
@@ -36,6 +41,12 @@
 // color picker button id
 #define ColorPicker_ID 1000
 #define ColorFillingPicker_ID 2000
+
+// mouse shapes
+#define ArrowMouse_ID 5000
+#define CrossMouse_ID 5100
+#define HandMouse_ID 5200
+#define NoMouse_ID 5300
 
 using namespace std;
 
@@ -64,7 +75,7 @@ void AddPolygonsMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, Circle_ID, "Circle");
     AppendMenu(hFileMenu, MF_STRING, CircleBresenham_ID, "Circle Bresenham");
     AppendMenu(hFileMenu, MF_STRING, CirclePolar_ID, "Circle Polar");
-    AppendMenu(hFileMenu, MF_STRING, CirlceIterativePolar_ID, "Circle Iterative Polar");
+    AppendMenu(hFileMenu, MF_STRING, CircleIterativePolar_ID, "Circle Iterative Polar");
     AppendMenu(hFileMenu, MF_STRING, Polygon_ID, "General Polygon");
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Polygons");
@@ -74,8 +85,6 @@ void AddPolygonsMenu(HWND hwnd) {
 
 void AddFillingMenu(HWND hwnd) {
 
-
-
     HMENU hFileMenu = CreatePopupMenu();
     AppendMenu(hFileMenu, MF_STRING, ConvexScanLine_ID, "Convex Scan Line Filling");
     AppendMenu(hFileMenu, MF_STRING, GeneralScanLine_ID, "General Scan Line Filling");
@@ -83,6 +92,19 @@ void AddFillingMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, FloodFill_ID, "Non-Recursive FloodFill");
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Filling");
+
+    SetMenu(hwnd, hMenu);
+}
+
+void AddMouseMenu(HWND hwnd){
+
+    HMENU hFileMenu = CreatePopupMenu();
+    AppendMenuA(hFileMenu, MF_STRING, ArrowMouse_ID, "Arrow");
+    AppendMenuA(hFileMenu, MF_STRING, CrossMouse_ID, "Cross");
+    AppendMenuA(hFileMenu, MF_STRING, HandMouse_ID, "Hand");
+    AppendMenuA(hFileMenu, MF_STRING, NoMouse_ID, "No");
+
+    AppendMenuA(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Mouse");
 
     SetMenu(hwnd, hMenu);
 }
@@ -123,6 +145,7 @@ void AddFillerPicker(HWND hwnd){
     }
 }
 
+HCURSOR hCursor = LoadCursor(nullptr, IDC_ARROW);
 LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
 {
     HDC hdc;
@@ -164,25 +187,56 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 case LineDDA_ID:
                     shapeToDraw = LineDDA_ID;
                     break;
+                case LineBresenham_ID:
+                    shapeToDraw = LineBresenham_ID;
+                    break;
+                case CircleBresenham_ID:
+                    shapeToDraw = CircleBresenham_ID;
+                    break;
 
                 // filling
                 case FloodFill_ID:
                     shapeToDraw = FloodFill_ID;
                     break;
+                case RecFloodFill_ID:
+                    shapeToDraw = RecFloodFill_ID;
+                    break;
+                case ConvexScanLine_ID:
+                    shapeToDraw = ConvexScanLine_ID;
+                    break;
+
+                // mouse shapes
+                case ArrowMouse_ID:
+                    hCursor = LoadCursor(nullptr, IDC_ARROW);
+                    break;
+                case CrossMouse_ID:
+                    hCursor = LoadCursor(nullptr, IDC_CROSS);
+                    break;
+                case HandMouse_ID:
+                    hCursor = LoadCursor(nullptr, IDC_HAND);
+                    break;
+                case NoMouse_ID:
+                    hCursor = LoadCursor(nullptr, IDC_NO);
+                    break;
             }
             break;
+
         case WM_CREATE:
             CreateWindow(
                     "BUTTON", "Pick a Color",
                     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
                     1024, 20, 100, 40,
-                    hwnd, (HMENU)ColorPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
+                    hwnd, (HMENU)ColorPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
             CreateWindow(
                     "BUTTON", "Pick a Filling Color",
                     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
                     800, 20, 200, 40,
-                    hwnd, (HMENU)ColorFillingPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), NULL);
+                    hwnd, (HMENU)ColorFillingPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
             break;
+
+        case WM_SETCURSOR:
+            SetCursor(hCursor);
+            return TRUE;
 
         case WM_LBUTTONDOWN:
             p.x = LOWORD(lp);
@@ -239,9 +293,39 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+            if(shapeToDraw == LineBresenham_ID){
+                hdc = GetDC(hwnd);
+                s = new LineBresenham(v[0], v[1], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if(shapeToDraw == CircleBresenham_ID){
+                hdc = GetDC(hwnd);
+                s = new CircleBresenham(v[0], v[1], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
             if(shapeToDraw == FloodFill_ID){
                 hdc = GetDC(hwnd);
                 f = new FloodFilling(rgbFilling, rgbDrawing, v[0]);
+                f->fill(hdc);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if(shapeToDraw == RecFloodFill_ID){
+                hdc = GetDC(hwnd);
+                f = new RecursiveFloodFill(rgbFilling, rgbDrawing, v[0]);
+                f->fill(hdc);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if(shapeToDraw == ConvexScanLine_ID){
+                hdc = GetDC(hwnd);
+                f = new ConvexFilling(rgbDrawing, v);
+                s = new GeneralPolygon(v, rgbDrawing);
+                s->draw(hdc, rgbDrawing);
                 f->fill(hdc);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
@@ -264,23 +348,24 @@ int APIENTRY WinMain(HINSTANCE hi, HINSTANCE pi, LPSTR cmd, int nsh) {
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wc.hIcon = LoadIcon(nullptr, IDI_WINLOGO);
     wc.lpszClassName = "MyClass";
-    wc.lpszMenuName = NULL;
+    wc.lpszMenuName = nullptr;
     wc.lpfnWndProc = WndProc;
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.hInstance = hi;
     RegisterClass(&wc);
     HWND hwnd = CreateWindow("MyClass", "Sketcher", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-                             CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hi, 0);
+                             CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, hi, nullptr);
     ShowWindow(hwnd, nsh);
     UpdateWindow(hwnd);
     MSG msg;
     AddCurvesMenu(hwnd);
     AddPolygonsMenu(hwnd);
     AddFillingMenu(hwnd);
-    while (GetMessage(&msg, NULL, 0, 0) > 0) {
+    AddMouseMenu(hwnd);
+    while (GetMessage(&msg, nullptr, 0, 0) > 0) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }

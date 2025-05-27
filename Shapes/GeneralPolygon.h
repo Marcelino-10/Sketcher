@@ -2,7 +2,7 @@
 #define GRAPHICSPROJECT_GENERALPOLYGON_H
 
 #include "Shape.h"
-#include "../Point.h"
+#include "Point.h"
 #include "LinesDDA.h"
 #include <vector>
 
