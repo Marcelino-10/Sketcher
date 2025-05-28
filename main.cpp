@@ -16,6 +16,10 @@
 #include "Filling/FloodFilling.h"
 #include "Filling/RecursiveFloodFill.h"
 #include "Filling/ConvexFilling.h"
+#include "Clipping/Clipping.h"
+#include "Clipping/LineClipping.h"
+#include "Clipping/PolygonClipping.h"
+
 
 
 // shapes id
@@ -38,6 +42,11 @@
 #define GeneralScanLine_ID 200
 #define FloodFill_ID 300
 #define RecFloodFill_ID 400
+
+// clipping
+#define LineClipping_ID 10000
+#define PolygonClipping_ID 20000
+#define DisableClipping_ID 30000
 
 // color picker button id
 #define ColorPicker_ID 1000
@@ -97,6 +106,18 @@ void AddFillingMenu(HWND hwnd) {
     SetMenu(hwnd, hMenu);
 }
 
+void AddClippingMenu(HWND hwnd) {
+
+    HMENU hFileMenu = CreatePopupMenu();
+    AppendMenu(hFileMenu, MF_STRING, LineClipping_ID, "LineClipping");
+    AppendMenu(hFileMenu, MF_STRING, PolygonClipping_ID, "Polygon Clipping");
+    AppendMenu(hFileMenu, MF_STRING, DisableClipping_ID, "Disable Clipping");
+
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Clipping");
+
+    SetMenu(hwnd, hMenu);
+}
+
 void AddMouseMenu(HWND hwnd){
 
     HMENU hFileMenu = CreatePopupMenu();
@@ -152,8 +173,11 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
     HDC hdc;
     static Shape *s;
     static Filling *f;
+    static Clipping *c;
     static vector<Point> v;
     static int shapeToDraw;
+    static bool isLineClipping;
+    static bool isPolygonClipping;
     Point p;
     switch (m) {
         case WM_COMMAND:
@@ -207,6 +231,22 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     break;
                 case ConvexScanLine_ID:
                     shapeToDraw = ConvexScanLine_ID;
+                    break;
+
+                // clipping
+                case LineClipping_ID:
+                    isLineClipping = true;
+                    shapeToDraw = LineClipping_ID;
+                    break;
+
+                case PolygonClipping_ID:
+                    isPolygonClipping = true;
+                    shapeToDraw = PolygonClipping_ID;
+                    break;
+
+                case DisableClipping_ID:
+                    isLineClipping = false;
+                    isPolygonClipping = false;
                     break;
 
                 // mouse shapes
@@ -285,6 +325,9 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             }
             if(shapeToDraw == Polygon_ID){
                 hdc = GetDC(hwnd);
+                if(isPolygonClipping){
+                    c->clip(hdc, v);
+                }
                 s = new GeneralPolygon(v, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
@@ -292,22 +335,37 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             }
             if(shapeToDraw == LineDDA_ID){
                 hdc = GetDC(hwnd);
-                s = new LinesDDA(v[0], v[1], rgbDrawing);
-                s->draw(hdc, rgbDrawing);
+                if(isLineClipping){
+                    c->clip(hdc, v);
+                }
+                if(!v.empty()){
+                    s = new LinesDDA(v[0], v[1], rgbDrawing);
+                    s->draw(hdc, rgbDrawing);
+                }
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
             if(shapeToDraw == LineBresenham_ID){
                 hdc = GetDC(hwnd);
-                s = new LineBresenham(v[0], v[1], rgbDrawing);
-                s->draw(hdc, rgbDrawing);
+                if(isLineClipping){
+                    c->clip(hdc, v);
+                }
+                if(!v.empty()){
+                    s = new LineBresenham(v[0], v[1], rgbDrawing);
+                    s->draw(hdc, rgbDrawing);
+                }
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
             if(shapeToDraw == LineParametric_ID){
                 hdc = GetDC(hwnd);
-                s = new LineParametric(v[0], v[1], rgbDrawing);
-                s->draw(hdc, rgbDrawing);
+                if(isLineClipping){
+                    c->clip(hdc, v);
+                }
+                if(!v.empty()){
+                    s = new LineParametric(v[0], v[1], rgbDrawing);
+                    s->draw(hdc, rgbDrawing);
+                }
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
@@ -337,6 +395,33 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 f = new ConvexFilling(rgbFilling, v);
                 s = new GeneralPolygon(v, rgbDrawing);
                 f->fill(hdc);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if(shapeToDraw == LineClipping_ID){
+                hdc = GetDC(hwnd);
+                c = new LineClipping(v, (int) v[0].x, (int) v[1].x, (int)v[0].y, (int) v[1].y);
+                vector<Point> p = {{v[0].x, v[0].y}, {v[1].x, v[0].y}, {v[1].x, v[1].y}, {v[0].x, v[1].y}};
+                s = new GeneralPolygon(p, rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if(shapeToDraw == PolygonClipping_ID){
+                hdc = GetDC(hwnd);
+                c = new PolygonClipping(v, (int) v[0].x, (int) v[1].x, (int)v[0].y, (int) v[1].y);
+                vector<Point> clipWindow = {{v[0].x, v[0].y}, {v[1].x, v[0].y}, {v[1].x, v[1].y}, {v[0].x, v[1].y}};
+                s = new GeneralPolygon(clipWindow, rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if(shapeToDraw == LineClipping_ID){
+                hdc = GetDC(hwnd);
+                c = new LineClipping(v, (int) v[0].x, (int) v[1].x, (int)v[0].y, (int) v[1].y);
+                vector<Point> clipWindow = {{v[0].x, v[0].y}, {v[1].x, v[0].y}, {v[1].x, v[1].y}, {v[0].x, v[1].y}};
+                s = new GeneralPolygon(clipWindow, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
@@ -375,6 +460,7 @@ int APIENTRY WinMain(HINSTANCE hi, HINSTANCE pi, LPSTR cmd, int nsh) {
     AddCurvesMenu(hwnd);
     AddPolygonsMenu(hwnd);
     AddFillingMenu(hwnd);
+    AddClippingMenu(hwnd);
     AddMouseMenu(hwnd);
     while (GetMessage(&msg, nullptr, 0, 0) > 0) {
         TranslateMessage(&msg);
