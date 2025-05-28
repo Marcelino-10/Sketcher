@@ -2,15 +2,36 @@
 
 ConvexFilling::ConvexFilling(COLORREF cf, vector<Point> &v) : Filling(cf, cf), v(v){}
 
-void LineDDA(HDC hdc, int x1, int y1, int x2, int y2, COLORREF c) {
-    int mx = max(abs(x2 - x1), abs(y2 - y1));
-    double step = 1.0 / mx;
-    int alpha1 = x2 - x1, beta1 = x1, alpha2 = y2 - y1, beta2 = y1;
-    double t;
-    for(t = 0; t < 1; t += step){
-        double x = alpha1 * t + beta1;
-        double y = alpha2 * t + beta2;
-        SetPixel(hdc, Round(x), Round(y), c);
+void LineDDA(HDC hdc, Point p1, Point p2, COLORREF c) {
+    double dx = (p2.x - p1.x), dy = (p2.y - p1.y);
+    SetPixel(hdc, (int) p1.x, (int) p1.y, c);
+    if(abs(dx) >= abs(dy)){
+        if(p2.x < p1.x){
+            swap(p1.x, p2.x);
+            swap(p1.y, p2.y);
+        }
+        int xs = (int) p1.x;
+        double ys = p1.y;
+        double yInc = (dy / dx);
+        while(xs < p2.x){
+            xs++;
+            ys += yInc;
+            SetPixel(hdc, xs, round(ys), c);
+        }
+    }
+    else{
+        if(p2.y < p1.y){
+            swap(p1.x, p2.x);
+            swap(p1.y, p2.y);
+        }
+        int ys = (int) p1.y;
+        double xs = p1.x;
+        double xInc = (dx / dy);
+        while(ys < p2.y){
+            ys++;
+            xs += xInc;
+            SetPixel(hdc, round(xs), ys, c);
+        }
     }
 }
 
@@ -32,7 +53,7 @@ void edge2Table(Point v1, Point v2, edgeTable &t){
     while(y < v2.y){
         if(x < t[y].xLeft)
             t[y].xLeft = x;
-        else if(x > t[y].xRight)
+        if(x > t[y].xRight)
             t[y].xRight = x;
         y++;
         x += invM;
@@ -50,7 +71,7 @@ void polygon2Table(vector<Point> &p, edgeTable &t){
 void table2Screen(HDC hdc, edgeTable &t, COLORREF c){
     for (int y = 0; y < 1024; ++y) {
         if(t[y].xLeft < t[y].xRight)
-            LineDDA(hdc, (int) ceil(t[y].xLeft), y, (int) floor(t[y].xRight), y, c);
+            LineDDA(hdc, {ceil(t[y].xLeft), (double) y}, {floor(t[y].xRight), (double) y}, c);
     }
 }
 

@@ -11,6 +11,7 @@
 #include "Shapes/GeneralPolygon.h"
 #include "Shapes/LinesDDA.h"
 #include "Shapes/LineBresenham.h"
+#include "Shapes/LineParametric.h"
 #include "Shapes/CircleBresenham.h"
 #include "Filling/FloodFilling.h"
 #include "Filling/RecursiveFloodFill.h"
@@ -190,6 +191,9 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 case LineBresenham_ID:
                     shapeToDraw = LineBresenham_ID;
                     break;
+                case LineParametric_ID:
+                    shapeToDraw = LineParametric_ID;
+                    break;
                 case CircleBresenham_ID:
                     shapeToDraw = CircleBresenham_ID;
                     break;
@@ -300,6 +304,13 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+            if(shapeToDraw == LineParametric_ID){
+                hdc = GetDC(hwnd);
+                s = new LineParametric(v[0], v[1], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
             if(shapeToDraw == CircleBresenham_ID){
                 hdc = GetDC(hwnd);
                 s = new CircleBresenham(v[0], v[1], rgbDrawing);
@@ -323,10 +334,10 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             }
             if(shapeToDraw == ConvexScanLine_ID){
                 hdc = GetDC(hwnd);
-                f = new ConvexFilling(rgbDrawing, v);
+                f = new ConvexFilling(rgbFilling, v);
                 s = new GeneralPolygon(v, rgbDrawing);
-                s->draw(hdc, rgbDrawing);
                 f->fill(hdc);
+                s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
