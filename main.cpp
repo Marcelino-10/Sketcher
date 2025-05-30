@@ -16,6 +16,7 @@
 #include "Filling/FloodFilling.h"
 #include "Filling/RecursiveFloodFill.h"
 #include "Filling/ConvexFilling.h"
+#include "Filling/GeneralFilling.h"
 #include "Clipping/Clipping.h"
 #include "Clipping/LineClipping.h"
 #include "Clipping/PolygonClipping.h"
@@ -232,6 +233,9 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 case ConvexScanLine_ID:
                     shapeToDraw = ConvexScanLine_ID;
                     break;
+                case GeneralScanLine_ID:
+                    shapeToDraw = GeneralScanLine_ID;
+                    break;
 
                 // clipping
                 case LineClipping_ID:
@@ -399,11 +403,20 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+            if(shapeToDraw == GeneralScanLine_ID){
+                hdc = GetDC(hwnd);
+                f = new GeneralFilling(rgbFilling, v);
+                s = new GeneralPolygon(v, rgbDrawing);
+                f->fill(hdc);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
             if(shapeToDraw == LineClipping_ID){
                 hdc = GetDC(hwnd);
                 c = new LineClipping(v, (int) v[0].x, (int) v[1].x, (int)v[0].y, (int) v[1].y);
-                vector<Point> p = {{v[0].x, v[0].y}, {v[1].x, v[0].y}, {v[1].x, v[1].y}, {v[0].x, v[1].y}};
-                s = new GeneralPolygon(p, rgbDrawing);
+                vector<Point> point = {{v[0].x, v[0].y}, {v[1].x, v[0].y}, {v[1].x, v[1].y}, {v[0].x, v[1].y}};
+                s = new GeneralPolygon(point, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
