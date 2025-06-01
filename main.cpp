@@ -23,6 +23,7 @@
 #include "Shapes/DirectCircle.h"
 #include "Shapes/PolarCircle.h"
 #include "Shapes/IterativePolar.h"
+#include "Filling/CircleLineFilling.h"
 
 
 
@@ -46,6 +47,7 @@
 #define GeneralScanLine_ID 200
 #define FloodFill_ID 300
 #define RecFloodFill_ID 400
+#define CirclelineFill_ID 500
 
 // clipping
 #define LineClipping_ID 10000
@@ -104,6 +106,7 @@ void AddFillingMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, GeneralScanLine_ID, "General Scan Line Filling");
     AppendMenu(hFileMenu, MF_STRING, RecFloodFill_ID, "Recursive FloodFill");
     AppendMenu(hFileMenu, MF_STRING, FloodFill_ID, "Non-Recursive FloodFill");
+    AppendMenu(hFileMenu, MF_STRING, CirclelineFill_ID, "CircleLine Filling");
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Filling");
 
@@ -194,7 +197,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     AddFillerPicker(hwnd);
                     break;
 
-                // shapes
+                    // shapes
                 case BezierCurve_ID:
                     shapeToDraw = BezierCurve_ID;
                     break;
@@ -226,17 +229,17 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     shapeToDraw = CircleBresenham_ID;
                     break;
                 case Circle_ID:
-                    shapeToDraw=Circle_ID;
+                    shapeToDraw = Circle_ID;
                     break;
                 case CirclePolar_ID:
-                    shapeToDraw=CirclePolar_ID;
+                    shapeToDraw = CirclePolar_ID;
                     break;
                 case CircleIterativePolar_ID:
-                    shapeToDraw=CircleIterativePolar_ID;
+                    shapeToDraw = CircleIterativePolar_ID;
                     break;
 
 
-                // filling
+                    // filling
                 case FloodFill_ID:
                     shapeToDraw = FloodFill_ID;
                     break;
@@ -249,8 +252,11 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 case GeneralScanLine_ID:
                     shapeToDraw = GeneralScanLine_ID;
                     break;
+                case CirclelineFill_ID:
+                    shapeToDraw = CirclelineFill_ID;
+                    break;
 
-                // clipping
+                    // clipping
                 case LineClipping_ID:
                     isLineClipping = true;
                     shapeToDraw = LineClipping_ID;
@@ -266,7 +272,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     isPolygonClipping = false;
                     break;
 
-                // mouse shapes
+                    // mouse shapes
                 case ArrowMouse_ID:
                     hCursor = LoadCursor(nullptr, IDC_ARROW);
                     break;
@@ -287,12 +293,12 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     "BUTTON", "Pick a Color",
                     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
                     1024, 20, 100, 40,
-                    hwnd, (HMENU)ColorPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+                    hwnd, (HMENU) ColorPicker_ID, (HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
             CreateWindow(
                     "BUTTON", "Pick a Filling Color",
                     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
                     800, 20, 200, 40,
-                    hwnd, (HMENU)ColorFillingPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+                    hwnd, (HMENU) ColorFillingPicker_ID, (HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
             break;
 
         case WM_SETCURSOR:
@@ -305,44 +311,44 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             v.push_back(p);
             break;
         case WM_RBUTTONDOWN:
-            if(shapeToDraw == BezierCurve_ID){
+            if (shapeToDraw == BezierCurve_ID) {
                 hdc = GetDC(hwnd);
                 s = new BezierCurve(v, 1000, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == BezierCurveMidpoint_ID){
+            if (shapeToDraw == BezierCurveMidpoint_ID) {
                 hdc = GetDC(hwnd);
                 s = new BezierCurveMidpoint(v, 1000, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == BezierCurveMatrix_ID){
+            if (shapeToDraw == BezierCurveMatrix_ID) {
                 hdc = GetDC(hwnd);
                 s = new BezierCurveMatrix(v, 1000, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == HermiteCurve_ID){
+            if (shapeToDraw == HermiteCurve_ID) {
                 hdc = GetDC(hwnd);
                 s = new HermiteCurve(v, 1000, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == CardinalSpline_ID){
+            if (shapeToDraw == CardinalSpline_ID) {
                 hdc = GetDC(hwnd);
                 s = new CardinalSpline(v, 3, 1000, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == Polygon_ID){
+            if (shapeToDraw == Polygon_ID) {
                 hdc = GetDC(hwnd);
-                if(isPolygonClipping){
+                if (isPolygonClipping) {
                     c->clip(hdc, v);
                 }
                 s = new GeneralPolygon(v, rgbDrawing);
@@ -350,85 +356,112 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == LineDDA_ID){
+            if (shapeToDraw == LineDDA_ID) {
                 hdc = GetDC(hwnd);
-                if(isLineClipping){
+                if (isLineClipping) {
                     c->clip(hdc, v);
                 }
-                if(!v.empty()){
+                if (!v.empty()) {
                     s = new LinesDDA(v[0], v[1], rgbDrawing);
                     s->draw(hdc, rgbDrawing);
                 }
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == LineBresenham_ID){
+            if (shapeToDraw == LineBresenham_ID) {
                 hdc = GetDC(hwnd);
-                if(isLineClipping){
+                if (isLineClipping) {
                     c->clip(hdc, v);
                 }
-                if(!v.empty()){
+                if (!v.empty()) {
                     s = new LineBresenham(v[0], v[1], rgbDrawing);
                     s->draw(hdc, rgbDrawing);
                 }
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == LineParametric_ID){
+            if (shapeToDraw == LineParametric_ID) {
                 hdc = GetDC(hwnd);
-                if(isLineClipping){
+                if (isLineClipping) {
                     c->clip(hdc, v);
                 }
-                if(!v.empty()){
+                if (!v.empty()) {
                     s = new LineParametric(v[0], v[1], rgbDrawing);
                     s->draw(hdc, rgbDrawing);
                 }
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == CircleBresenham_ID){
+            if (shapeToDraw == CircleBresenham_ID) {
                 hdc = GetDC(hwnd);
                 s = new CircleBresenham(v[0], v[1], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == Circle_ID){
+            if (shapeToDraw == Circle_ID) {
                 hdc = GetDC(hwnd);
-                
+
                 s = new DirectCircle(v[0], v[1], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw==CirclePolar_ID){
+            if (shapeToDraw == CirclePolar_ID) {
                 hdc = GetDC(hwnd);
                 s = new PolarCircle(v[0], v[1], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw==CircleIterativePolar_ID){
+            if (shapeToDraw == CircleIterativePolar_ID) {
                 hdc = GetDC(hwnd);
                 s = new IterativePolar(v[0], v[1], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == FloodFill_ID){
+            if (shapeToDraw == FloodFill_ID) {
                 hdc = GetDC(hwnd);
                 f = new FloodFilling(rgbFilling, rgbDrawing, v[0]);
                 f->fill(hdc);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == RecFloodFill_ID){
+            if (shapeToDraw == RecFloodFill_ID) {
                 hdc = GetDC(hwnd);
                 f = new RecursiveFloodFill(rgbFilling, rgbDrawing, v[0]);
                 f->fill(hdc);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+
+            if (shapeToDraw == CirclelineFill_ID) {
+                if (v.size() == 2) {
+                    hdc = GetDC(hwnd);
+                    int quarter = 1;
+                    int response = MessageBoxA(hwnd, "Choose quarter:\nYes = 1st\nNo = 2nd\nCancel = More options",
+                                               "Select Quarter", MB_YESNOCANCEL);
+
+                    switch (response) {
+                        case IDYES: quarter = 1; break;
+                        case IDNO:  quarter = 2; break;
+                        case IDCANCEL: {
+                            int more = MessageBoxA(hwnd, "Choose quarter:\nYes = 3rd\nNo = 4th",
+                                                   "Select Quarter", MB_YESNO);
+                            quarter = (more == IDYES) ? 3 : 4;
+                            break;
+                        }
+                    }
+
+
+                    f = new CircleLineFilling(v[0], v[1], quarter, rgbFilling);
+                    f->fill(hdc);
+                    v.clear();
+                    ReleaseDC(hwnd, hdc);
+                }
+            }
+
             if(shapeToDraw == ConvexScanLine_ID){
                 hdc = GetDC(hwnd);
                 f = new ConvexFilling(rgbFilling, v);
