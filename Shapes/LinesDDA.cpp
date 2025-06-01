@@ -34,3 +34,7 @@ void LinesDDA::draw(HDC hdc, COLORREF c) {
         }
     }
 }
+void LineeDDA(HDC hdc, Point p1, Point p2, COLORREF c) {
+    LinesDDA line(p1, p2, c);
+    line.draw(hdc, c);
+}
