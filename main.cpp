@@ -20,6 +20,9 @@
 #include "Clipping/Clipping.h"
 #include "Clipping/LineClipping.h"
 #include "Clipping/PolygonClipping.h"
+#include "Shapes/DirectCircle.h"
+#include "Shapes/PolarCircle.h"
+#include "Shapes/IterativePolar.h"
 
 
 
@@ -33,7 +36,7 @@
 #define LineDDA_ID 7
 #define LineBresenham_ID 8
 #define LineParametric_ID 9
-#define Circle_ID 10
+#define Circle_ID 13
 #define CircleBresenham_ID 10
 #define CirclePolar_ID 11
 #define CircleIterativePolar_ID 12
@@ -222,6 +225,16 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 case CircleBresenham_ID:
                     shapeToDraw = CircleBresenham_ID;
                     break;
+                case Circle_ID:
+                    shapeToDraw=Circle_ID;
+                    break;
+                case CirclePolar_ID:
+                    shapeToDraw=CirclePolar_ID;
+                    break;
+                case CircleIterativePolar_ID:
+                    shapeToDraw=CircleIterativePolar_ID;
+                    break;
+
 
                 // filling
                 case FloodFill_ID:
@@ -380,6 +393,28 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+            if(shapeToDraw == Circle_ID){
+                hdc = GetDC(hwnd);
+                
+                s = new DirectCircle(v[0], v[1], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if(shapeToDraw==CirclePolar_ID){
+                hdc = GetDC(hwnd);
+                s = new PolarCircle(v[0], v[1], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if(shapeToDraw==CircleIterativePolar_ID){
+                hdc = GetDC(hwnd);
+                s = new IterativePolar(v[0], v[1], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
             if(shapeToDraw == FloodFill_ID){
                 hdc = GetDC(hwnd);
                 f = new FloodFilling(rgbFilling, rgbDrawing, v[0]);
@@ -403,7 +438,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == GeneralScanLine_ID){
+           if(shapeToDraw == GeneralScanLine_ID){
                 hdc = GetDC(hwnd);
                 f = new GeneralFilling(rgbFilling, v);
                 s = new GeneralPolygon(v, rgbDrawing);
