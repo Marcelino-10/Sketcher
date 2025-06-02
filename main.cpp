@@ -24,7 +24,9 @@
 #include "Shapes/PolarCircle.h"
 #include "Shapes/IterativePolar.h"
 #include "Filling/CircleLineFilling.h"
-
+#include "Shapes/EllipseDirect.h"
+#include "Shapes/EllipsePolar.h"
+#include "Shapes/EllipseMidpoint.h"
 
 
 // shapes id
@@ -41,6 +43,9 @@
 #define CircleBresenham_ID 10
 #define CirclePolar_ID 11
 #define CircleIterativePolar_ID 12
+#define EllipseDirect_ID 14
+#define EllipsePolar_ID 15
+#define EllipseMidpoint_ID 16
 
 // filling id
 #define ConvexScanLine_ID 100
@@ -93,6 +98,10 @@ void AddPolygonsMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, CirclePolar_ID, "Circle Polar");
     AppendMenu(hFileMenu, MF_STRING, CircleIterativePolar_ID, "Circle Iterative Polar");
     AppendMenu(hFileMenu, MF_STRING, Polygon_ID, "General Polygon");
+    AppendMenu(hFileMenu, MF_STRING, EllipseDirect_ID, "Ellipse Direct");
+    AppendMenu(hFileMenu, MF_STRING, EllipsePolar_ID, "Ellipse Polar");
+    AppendMenu(hFileMenu, MF_STRING, EllipseMidpoint_ID, "Ellipse Midpoint");
+
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Polygons");
 
@@ -236,6 +245,15 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     break;
                 case CircleIterativePolar_ID:
                     shapeToDraw = CircleIterativePolar_ID;
+                    break;
+                case EllipseDirect_ID:
+                    shapeToDraw = EllipseDirect_ID;
+                    break;
+                case EllipsePolar_ID:
+                    shapeToDraw = EllipsePolar_ID;
+                    break;
+                case EllipseMidpoint_ID:
+                    shapeToDraw = EllipseMidpoint_ID;
                     break;
 
 
@@ -460,6 +478,30 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     v.clear();
                     ReleaseDC(hwnd, hdc);
                 }
+            }
+            if (shapeToDraw == EllipseDirect_ID) {
+                hdc = GetDC(hwnd);
+
+                s = new EllipseDirect(v[0], v[1],v[2], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if (shapeToDraw == EllipsePolar_ID) {
+                hdc = GetDC(hwnd);
+
+                s = new EllipsePolar(v[0], v[1],v[2], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if (shapeToDraw == EllipseMidpoint_ID) {
+                hdc = GetDC(hwnd);
+
+                s = new EllipseMidpoint(v[0], v[1],v[2], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
             }
 
             if(shapeToDraw == ConvexScanLine_ID){
