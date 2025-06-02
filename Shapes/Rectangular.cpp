@@ -57,7 +57,7 @@ void Rectangular::bezierCurveFill(HDC hdc, COLORREF c) {
     int height = maxY - minY;
     int width = rightX - leftX;
 
-    for (int x = leftX; x <= rightX; x += 1) {
+    for (int x = leftX; x <= rightX; x += 5) {
         double normalizedX = (double) (x - leftX) / width;
 
         int waveAmplitude = width / 12;

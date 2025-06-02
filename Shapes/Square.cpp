@@ -89,7 +89,7 @@ void Square::hermitCurveFill(HDC hdc, COLORREF c) {
     int minY = getMinY();
     int maxY = getMaxY();
 
-    for (int y = minY; y <= maxY; y++) {
+    for (int y = minY; y <= maxY; y += 5) {
         int leftX = getLeftX(y);
         int rightX = getRightX(y);
 
