@@ -109,6 +109,8 @@ void AddPolygonsMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, EllipseDirect_ID, "Ellipse Direct");
     AppendMenu(hFileMenu, MF_STRING, EllipsePolar_ID, "Ellipse Polar");
     AppendMenu(hFileMenu, MF_STRING, EllipseMidpoint_ID, "Ellipse Midpoint");
+    AppendMenu(hFileMenu, MF_STRING, Square_ID, "Square");
+    AppendMenu(hFileMenu, MF_STRING, Rectangle_ID, "Rectangle");
 
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR) hFileMenu, "Polygons");
