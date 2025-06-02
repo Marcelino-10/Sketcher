@@ -29,6 +29,9 @@
 #include "Shapes/EllipsePolar.h"
 #include "Shapes/EllipseMidpoint.h"
 #include "Filling/CircleCirclesFilling.h"
+#include "Shapes/Square.h"
+#include "Shapes/Rectangular.h"
+
 
 // shapes id
 #define BezierCurve_ID 1
@@ -47,6 +50,8 @@
 #define EllipseDirect_ID 14
 #define EllipsePolar_ID 15
 #define EllipseMidpoint_ID 16
+#define Square_ID 17
+#define Rectangle_ID 18
 
 // filling id
 #define ConvexScanLine_ID 100
@@ -74,6 +79,7 @@
 using namespace std;
 
 HMENU hMenu;
+
 void AddCurvesMenu(HWND hwnd) {
     hMenu = CreateMenu();
 
@@ -84,7 +90,7 @@ void AddCurvesMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, HermiteCurve_ID, "Hermite Curve");
     AppendMenu(hFileMenu, MF_STRING, CardinalSpline_ID, "Cardinal Spline");
 
-    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Curves");
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR) hFileMenu, "Curves");
 
     SetMenu(hwnd, hMenu);
 }
@@ -105,7 +111,7 @@ void AddPolygonsMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, EllipseMidpoint_ID, "Ellipse Midpoint");
 
 
-    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Polygons");
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR) hFileMenu, "Polygons");
 
     SetMenu(hwnd, hMenu);
 }
@@ -120,7 +126,7 @@ void AddFillingMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, CircleLineFill_ID, "CircleLine Filling");
     AppendMenu(hFileMenu, MF_STRING, CircleCirclesFill_ID, "Circle with Circles Filling");
 
-    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Filling");
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR) hFileMenu, "Filling");
 
     SetMenu(hwnd, hMenu);
 }
@@ -132,12 +138,12 @@ void AddClippingMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, PolygonClipping_ID, "Polygon Clipping");
     AppendMenu(hFileMenu, MF_STRING, DisableClipping_ID, "Disable Clipping");
 
-    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Clipping");
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR) hFileMenu, "Clipping");
 
     SetMenu(hwnd, hMenu);
 }
 
-void AddMouseMenu(HWND hwnd){
+void AddMouseMenu(HWND hwnd) {
 
     HMENU hFileMenu = CreatePopupMenu();
     AppendMenuA(hFileMenu, MF_STRING, ArrowMouse_ID, "Arrow");
@@ -145,7 +151,7 @@ void AddMouseMenu(HWND hwnd){
     AppendMenuA(hFileMenu, MF_STRING, HandMouse_ID, "Hand");
     AppendMenuA(hFileMenu, MF_STRING, NoMouse_ID, "No");
 
-    AppendMenuA(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Mouse");
+    AppendMenuA(hMenu, MF_POPUP, (UINT_PTR) hFileMenu, "Mouse");
 
     SetMenu(hwnd, hMenu);
 }
@@ -156,7 +162,7 @@ static COLORREF customColors[16];
 COLORREF rgbDrawing = RGB(255, 255, 255);
 COLORREF rgbFilling = RGB(255, 255, 255);
 
-void AddColorPicker(HWND hwnd){
+void AddColorPicker(HWND hwnd) {
     rgbDrawing = RGB(255, 255, 255);
 
     ZeroMemory(&cc1, sizeof(cc1));
@@ -171,7 +177,7 @@ void AddColorPicker(HWND hwnd){
     }
 }
 
-void AddFillerPicker(HWND hwnd){
+void AddFillerPicker(HWND hwnd) {
     rgbFilling = RGB(255, 255, 255);
 
     ZeroMemory(&cc2, sizeof(cc2));
@@ -181,14 +187,14 @@ void AddFillerPicker(HWND hwnd){
     cc2.rgbResult = rgbDrawing;
     cc2.Flags = CC_FULLOPEN | CC_RGBINIT;
 
-    if(ChooseColor(&cc2) == TRUE){
+    if (ChooseColor(&cc2) == TRUE) {
         rgbFilling = cc2.rgbResult;
     }
 }
 
 HCURSOR hCursor = LoadCursor(nullptr, IDC_ARROW);
-LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
-{
+
+LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
     HDC hdc;
     static Shape *s;
     static Filling *f;
@@ -209,7 +215,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     AddFillerPicker(hwnd);
                     break;
 
-                // shapes
+                    // shapes
                 case BezierCurve_ID:
                     shapeToDraw = BezierCurve_ID;
                     break;
@@ -258,8 +264,14 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 case EllipseMidpoint_ID:
                     shapeToDraw = EllipseMidpoint_ID;
                     break;
+                case Square_ID:
+                    shapeToDraw = Square_ID;
+                    break;
+                case Rectangle_ID:
+                    shapeToDraw = Rectangle_ID;
+                    break;
 
-                // filling
+                    // filling
                 case FloodFill_ID:
                     shapeToDraw = FloodFill_ID;
                     break;
@@ -279,7 +291,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     shapeToDraw = CircleCirclesFill_ID;
                     break;
 
-                // clipping
+                    // clipping
                 case LineClipping_ID:
                     isLineClipping = true;
                     shapeToDraw = LineClipping_ID;
@@ -295,7 +307,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     isPolygonClipping = false;
                     break;
 
-                // mouse shapes
+                    // mouse shapes
                 case ArrowMouse_ID:
                     hCursor = LoadCursor(nullptr, IDC_ARROW);
                     break;
@@ -446,7 +458,14 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             if (shapeToDraw == EllipseDirect_ID) {
                 hdc = GetDC(hwnd);
 
-                s = new EllipseDirect(v[0], v[1],v[2], rgbDrawing);
+                s = new EllipseDirect(v[0], v[1], v[2], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if (shapeToDraw == Square_ID) {
+                hdc = GetDC(hwnd);
+                s = new Square(v[0], v[1], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
@@ -454,7 +473,14 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             if (shapeToDraw == EllipsePolar_ID) {
                 hdc = GetDC(hwnd);
 
-                s = new EllipsePolar(v[0], v[1],v[2], rgbDrawing);
+                s = new EllipsePolar(v[0], v[1], v[2], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if (shapeToDraw == Rectangle_ID) {
+                hdc = GetDC(hwnd);
+                s = new Rectangular(v[0], v[1], v[2], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
@@ -462,11 +488,12 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             if (shapeToDraw == EllipseMidpoint_ID) {
                 hdc = GetDC(hwnd);
 
-                s = new EllipseMidpoint(v[0], v[1],v[2], rgbDrawing);
+                s = new EllipseMidpoint(v[0], v[1], v[2], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+
             if (shapeToDraw == FloodFill_ID) {
                 hdc = GetDC(hwnd);
                 f = new FloodFilling(rgbFilling, rgbDrawing, v[0]);
@@ -486,12 +513,17 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 if (v.size() == 2) {
                     hdc = GetDC(hwnd);
                     int quarter = 1;
-                    int response = MessageBoxA(hwnd, "Choose quarter:\nYes = 1st\nNo = 2nd\nCancel = More options",
+                    int response = MessageBoxA(hwnd,
+                                               "Choose quarter:\nYes = 1st\nNo = 2nd\nCancel = More options",
                                                "Select Quarter", MB_YESNOCANCEL);
 
                     switch (response) {
-                        case IDYES: quarter = 1; break;
-                        case IDNO:  quarter = 2; break;
+                        case IDYES:
+                            quarter = 1;
+                            break;
+                        case IDNO:
+                            quarter = 2;
+                            break;
                         case IDCANCEL: {
                             int more = MessageBoxA(hwnd, "Choose quarter:\nYes = 3rd\nNo = 4th",
                                                    "Select Quarter", MB_YESNO);
@@ -507,7 +539,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     ReleaseDC(hwnd, hdc);
                 }
             }
-            if(shapeToDraw == CircleCirclesFill_ID){
+            if (shapeToDraw == CircleCirclesFill_ID) {
                 cout << "Enter Number of steps needed in filling:\n";
                 int steps = 1;
                 cin >> steps;
@@ -517,8 +549,12 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                                            "Select Quarter", MB_YESNOCANCEL);
 
                 switch (response) {
-                    case IDYES: quarter = 1; break;
-                    case IDNO:  quarter = 2; break;
+                    case IDYES:
+                        quarter = 1;
+                        break;
+                    case IDNO:
+                        quarter = 2;
+                        break;
                     case IDCANCEL: {
                         int more = MessageBoxA(hwnd, "Choose quarter:\nYes = 3rd\nNo = 4th",
                                                "Select Quarter", MB_YESNO);
@@ -532,7 +568,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 ReleaseDC(hwnd, hdc);
             }
 
-            if(shapeToDraw == ConvexScanLine_ID){
+            if (shapeToDraw == ConvexScanLine_ID) {
                 hdc = GetDC(hwnd);
                 f = new ConvexFilling(rgbFilling, v);
                 s = new GeneralPolygon(v, rgbDrawing);
@@ -541,7 +577,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-           if(shapeToDraw == GeneralScanLine_ID){
+            if (shapeToDraw == GeneralScanLine_ID) {
                 hdc = GetDC(hwnd);
                 f = new GeneralFilling(rgbFilling, v);
                 s = new GeneralPolygon(v, rgbDrawing);
@@ -550,28 +586,37 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == LineClipping_ID){
+            if (shapeToDraw == LineClipping_ID) {
                 hdc = GetDC(hwnd);
-                c = new LineClipping(v, (int) v[0].x, (int) v[1].x, (int)v[0].y, (int) v[1].y);
-                vector<Point> point = {{v[0].x, v[0].y}, {v[1].x, v[0].y}, {v[1].x, v[1].y}, {v[0].x, v[1].y}};
+                c = new LineClipping(v, (int) v[0].x, (int) v[1].x, (int) v[0].y, (int) v[1].y);
+                vector<Point> point = {{v[0].x, v[0].y},
+                                       {v[1].x, v[0].y},
+                                       {v[1].x, v[1].y},
+                                       {v[0].x, v[1].y}};
                 s = new GeneralPolygon(point, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == PolygonClipping_ID){
+            if (shapeToDraw == PolygonClipping_ID) {
                 hdc = GetDC(hwnd);
-                c = new PolygonClipping(v, (int) v[0].x, (int) v[1].x, (int)v[0].y, (int) v[1].y);
-                vector<Point> clipWindow = {{v[0].x, v[0].y}, {v[1].x, v[0].y}, {v[1].x, v[1].y}, {v[0].x, v[1].y}};
+                c = new PolygonClipping(v, (int) v[0].x, (int) v[1].x, (int) v[0].y, (int) v[1].y);
+                vector<Point> clipWindow = {{v[0].x, v[0].y},
+                                            {v[1].x, v[0].y},
+                                            {v[1].x, v[1].y},
+                                            {v[0].x, v[1].y}};
                 s = new GeneralPolygon(clipWindow, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if(shapeToDraw == LineClipping_ID){
+            if (shapeToDraw == LineClipping_ID) {
                 hdc = GetDC(hwnd);
-                c = new LineClipping(v, (int) v[0].x, (int) v[1].x, (int)v[0].y, (int) v[1].y);
-                vector<Point> clipWindow = {{v[0].x, v[0].y}, {v[1].x, v[0].y}, {v[1].x, v[1].y}, {v[0].x, v[1].y}};
+                c = new LineClipping(v, (int) v[0].x, (int) v[1].x, (int) v[0].y, (int) v[1].y);
+                vector<Point> clipWindow = {{v[0].x, v[0].y},
+                                            {v[1].x, v[0].y},
+                                            {v[1].x, v[1].y},
+                                            {v[0].x, v[1].y}};
                 s = new GeneralPolygon(clipWindow, rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
@@ -589,6 +634,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
     }
     return 0;
 }
+
 
 int APIENTRY WinMain(HINSTANCE hi, HINSTANCE pi, LPSTR cmd, int nsh) {
     WNDCLASS wc;
