@@ -2,7 +2,7 @@
 #ifndef SKETCHER_CIRCLELINEFILLING_H
 #define SKETCHER_CIRCLELINEFILLING_H
 #include "Filling.h"
-#include "Shapes/LinesDDA.h"
+#include "../Shapes/LinesDDA.h"
 #include <cmath>
 class CircleLineFilling : public Filling {
     Point center;
