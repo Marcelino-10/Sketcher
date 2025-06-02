@@ -75,7 +75,7 @@
 #define CrossMouse_ID 5100
 #define HandMouse_ID 5200
 #define NoMouse_ID 5300
-
+#define BackgroundColorPicker_ID 3000
 using namespace std;
 
 HMENU hMenu;
@@ -195,7 +195,22 @@ void AddFillerPicker(HWND hwnd) {
 }
 
 HCURSOR hCursor = LoadCursor(nullptr, IDC_ARROW);
+COLORREF rgbBackground = RGB(0, 0, 0);  // Default black
 
+void AddBackgroundPicker(HWND hwnd) {
+    CHOOSECOLOR cc;
+    ZeroMemory(&cc, sizeof(cc));
+    cc.lStructSize = sizeof(cc);
+    cc.hwndOwner = hwnd;
+    cc.lpCustColors = customColors;
+    cc.rgbResult = rgbBackground;
+    cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+    if (ChooseColor(&cc) == TRUE) {
+        rgbBackground = cc.rgbResult;
+        InvalidateRect(hwnd, NULL, TRUE);  // Redraw with new background
+    }
+}
 LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
     HDC hdc;
     static Shape *s;
@@ -322,9 +337,11 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
                 case NoMouse_ID:
                     hCursor = LoadCursor(nullptr, IDC_NO);
                     break;
+                case BackgroundColorPicker_ID:
+                    AddBackgroundPicker(hwnd);
+                    break;
             }
             break;
-
         case WM_CREATE:
             CreateWindow(
                     "BUTTON", "Pick a Color",
@@ -336,6 +353,11 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
                     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
                     800, 20, 200, 40,
                     hwnd, (HMENU) ColorFillingPicker_ID, (HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+            CreateWindow(
+                    "BUTTON", "Pick Background Color",
+                    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                    930, 80, 160, 40,
+                    hwnd, (HMENU)BackgroundColorPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
             break;
 
         case WM_SETCURSOR:
@@ -649,6 +671,17 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
         case WM_DESTROY:
             PostQuitMessage(0);
             break;
+        case WM_PAINT: {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+            RECT rect;
+            GetClientRect(hwnd, &rect);
+            HBRUSH hBrush = CreateSolidBrush(rgbBackground);
+            FillRect(hdc, &rect, hBrush);
+            DeleteObject(hBrush);
+            EndPaint(hwnd, &ps);
+            break;
+        }
         default:
             return DefWindowProc(hwnd, m, wp, lp);
     }
