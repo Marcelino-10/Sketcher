@@ -1,6 +1,3 @@
-//
-// Created by Arsany on 6/2/2025.
-//
 
 #include "EllipseMidpoint.h"
 #include <cmath>

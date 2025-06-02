@@ -109,8 +109,8 @@ void AddPolygonsMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, EllipseDirect_ID, "Ellipse Direct");
     AppendMenu(hFileMenu, MF_STRING, EllipsePolar_ID, "Ellipse Polar");
     AppendMenu(hFileMenu, MF_STRING, EllipseMidpoint_ID, "Ellipse Midpoint");
-    AppendMenu(hFileMenu, MF_STRING, Square_ID, "Square");
-    AppendMenu(hFileMenu, MF_STRING, Rectangle_ID, "Rectangle");
+    AppendMenu(hFileMenu, MF_STRING, Square_ID, "Square with Filling");
+    AppendMenu(hFileMenu, MF_STRING, Rectangle_ID, "Rectangle with Filling");
 
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR) hFileMenu, "Polygons");
@@ -465,27 +465,45 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
-            if (shapeToDraw == Square_ID) {
-                hdc = GetDC(hwnd);
-                s = new Square(v[0], v[1], rgbDrawing);
-                s->draw(hdc, rgbDrawing);
-                v.clear();
-                ReleaseDC(hwnd, hdc);
-            }
             if (shapeToDraw == EllipsePolar_ID) {
                 hdc = GetDC(hwnd);
-
                 s = new EllipsePolar(v[0], v[1], v[2], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+            if (shapeToDraw == Square_ID) {
+                if (v.size() >= 2) {
+                    hdc = GetDC(hwnd);
+                    s = new Square(v[0], v[1], rgbDrawing);
+                    s->draw(hdc, rgbDrawing);
+
+                    int response = MessageBoxA(hwnd, "Do you want to fill the square?\nYes = Fill\nNo = Just Draw",
+                                               "Square Fill Option", MB_YESNO);
+                    if (response == IDYES) {
+                        COLORREF fillCol = rgbFilling;
+                        ((Square *) s)->fill(hdc, fillCol);
+                    }
+
+                    v.clear();
+                    ReleaseDC(hwnd, hdc);
+                }
+            }
+
             if (shapeToDraw == Rectangle_ID) {
-                hdc = GetDC(hwnd);
-                s = new Rectangular(v[0], v[1], v[2], rgbDrawing);
-                s->draw(hdc, rgbDrawing);
-                v.clear();
-                ReleaseDC(hwnd, hdc);
+                if (v.size() >= 2) {
+                    hdc = GetDC(hwnd);
+                    s = new Rectangular(v[0], v[1], rgbDrawing);
+                    s->draw(hdc, rgbDrawing);
+                    int response = MessageBoxA(hwnd, "Do you want to fill the rectangle with Bezier curves?\nYes = Fill\nNo = Just Draw",
+                                               "Rectangle Fill Option", MB_YESNO);
+                    if (response == IDYES) {
+                        COLORREF fillCol = rgbFilling;
+                        ((Rectangular*)s)->fill(hdc, fillCol);
+                    }
+                    v.clear();
+                    ReleaseDC(hwnd, hdc);
+                }
             }
             if (shapeToDraw == EllipseMidpoint_ID) {
                 hdc = GetDC(hwnd);

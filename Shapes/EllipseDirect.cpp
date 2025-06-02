@@ -1,6 +1,4 @@
-//
-// Created by Arsany on 6/2/2025.
-//
+
 
 #include "EllipseDirect.h"
 EllipseDirect::EllipseDirect(Point center, Point radiusX, Point radiusY, COLORREF c)

@@ -1,6 +1,3 @@
-//
-// Created by Arsany on 6/2/2025.
-//
 
 #include "EllipsePolar.h"
 #include <cmath>
