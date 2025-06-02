@@ -13,6 +13,7 @@ public:
     LinesDDA(Point p1, Point p2, COLORREF c);
     void draw(HDC hdc, COLORREF c) override;
 };
+
 void LineeDDA(HDC hdc, Point p1, Point p2, COLORREF c);
 
 

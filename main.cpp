@@ -1,3 +1,4 @@
+#include <iostream>
 #include <Windows.h>
 #include <commdlg.h>
 #include "Shapes/Point.h"
@@ -27,7 +28,7 @@
 #include "Shapes/EllipseDirect.h"
 #include "Shapes/EllipsePolar.h"
 #include "Shapes/EllipseMidpoint.h"
-
+#include "Filling/CircleCirclesFilling.h"
 
 // shapes id
 #define BezierCurve_ID 1
@@ -39,10 +40,10 @@
 #define LineDDA_ID 7
 #define LineBresenham_ID 8
 #define LineParametric_ID 9
-#define Circle_ID 13
 #define CircleBresenham_ID 10
 #define CirclePolar_ID 11
 #define CircleIterativePolar_ID 12
+#define Circle_ID 13
 #define EllipseDirect_ID 14
 #define EllipsePolar_ID 15
 #define EllipseMidpoint_ID 16
@@ -52,7 +53,8 @@
 #define GeneralScanLine_ID 200
 #define FloodFill_ID 300
 #define RecFloodFill_ID 400
-#define CirclelineFill_ID 500
+#define CircleLineFill_ID 500
+#define CircleCirclesFill_ID 600
 
 // clipping
 #define LineClipping_ID 10000
@@ -115,7 +117,8 @@ void AddFillingMenu(HWND hwnd) {
     AppendMenu(hFileMenu, MF_STRING, GeneralScanLine_ID, "General Scan Line Filling");
     AppendMenu(hFileMenu, MF_STRING, RecFloodFill_ID, "Recursive FloodFill");
     AppendMenu(hFileMenu, MF_STRING, FloodFill_ID, "Non-Recursive FloodFill");
-    AppendMenu(hFileMenu, MF_STRING, CirclelineFill_ID, "CircleLine Filling");
+    AppendMenu(hFileMenu, MF_STRING, CircleLineFill_ID, "CircleLine Filling");
+    AppendMenu(hFileMenu, MF_STRING, CircleCirclesFill_ID, "Circle with Circles Filling");
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "Filling");
 
@@ -206,7 +209,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     AddFillerPicker(hwnd);
                     break;
 
-                    // shapes
+                // shapes
                 case BezierCurve_ID:
                     shapeToDraw = BezierCurve_ID;
                     break;
@@ -256,8 +259,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     shapeToDraw = EllipseMidpoint_ID;
                     break;
 
-
-                    // filling
+                // filling
                 case FloodFill_ID:
                     shapeToDraw = FloodFill_ID;
                     break;
@@ -270,11 +272,14 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 case GeneralScanLine_ID:
                     shapeToDraw = GeneralScanLine_ID;
                     break;
-                case CirclelineFill_ID:
-                    shapeToDraw = CirclelineFill_ID;
+                case CircleLineFill_ID:
+                    shapeToDraw = CircleLineFill_ID;
+                    break;
+                case CircleCirclesFill_ID:
+                    shapeToDraw = CircleCirclesFill_ID;
                     break;
 
-                    // clipping
+                // clipping
                 case LineClipping_ID:
                     isLineClipping = true;
                     shapeToDraw = LineClipping_ID;
@@ -290,7 +295,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     isPolygonClipping = false;
                     break;
 
-                    // mouse shapes
+                // mouse shapes
                 case ArrowMouse_ID:
                     hCursor = LoadCursor(nullptr, IDC_ARROW);
                     break;
@@ -419,7 +424,6 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
             }
             if (shapeToDraw == Circle_ID) {
                 hdc = GetDC(hwnd);
-
                 s = new DirectCircle(v[0], v[1], rgbDrawing);
                 s->draw(hdc, rgbDrawing);
                 v.clear();
@@ -439,6 +443,30 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+            if (shapeToDraw == EllipseDirect_ID) {
+                hdc = GetDC(hwnd);
+
+                s = new EllipseDirect(v[0], v[1],v[2], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if (shapeToDraw == EllipsePolar_ID) {
+                hdc = GetDC(hwnd);
+
+                s = new EllipsePolar(v[0], v[1],v[2], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
+            if (shapeToDraw == EllipseMidpoint_ID) {
+                hdc = GetDC(hwnd);
+
+                s = new EllipseMidpoint(v[0], v[1],v[2], rgbDrawing);
+                s->draw(hdc, rgbDrawing);
+                v.clear();
+                ReleaseDC(hwnd, hdc);
+            }
             if (shapeToDraw == FloodFill_ID) {
                 hdc = GetDC(hwnd);
                 f = new FloodFilling(rgbFilling, rgbDrawing, v[0]);
@@ -454,7 +482,7 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                 ReleaseDC(hwnd, hdc);
             }
 
-            if (shapeToDraw == CirclelineFill_ID) {
+            if (shapeToDraw == CircleLineFill_ID) {
                 if (v.size() == 2) {
                     hdc = GetDC(hwnd);
                     int quarter = 1;
@@ -479,27 +507,27 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp)
                     ReleaseDC(hwnd, hdc);
                 }
             }
-            if (shapeToDraw == EllipseDirect_ID) {
+            if(shapeToDraw == CircleCirclesFill_ID){
+                cout << "Enter Number of steps needed in filling:\n";
+                int steps = 1;
+                cin >> steps;
                 hdc = GetDC(hwnd);
+                int quarter = 1;
+                int response = MessageBoxA(hwnd, "Choose quarter:\nYes = 1st\nNo = 2nd\nCancel = More options",
+                                           "Select Quarter", MB_YESNOCANCEL);
 
-                s = new EllipseDirect(v[0], v[1],v[2], rgbDrawing);
-                s->draw(hdc, rgbDrawing);
-                v.clear();
-                ReleaseDC(hwnd, hdc);
-            }
-            if (shapeToDraw == EllipsePolar_ID) {
-                hdc = GetDC(hwnd);
-
-                s = new EllipsePolar(v[0], v[1],v[2], rgbDrawing);
-                s->draw(hdc, rgbDrawing);
-                v.clear();
-                ReleaseDC(hwnd, hdc);
-            }
-            if (shapeToDraw == EllipseMidpoint_ID) {
-                hdc = GetDC(hwnd);
-
-                s = new EllipseMidpoint(v[0], v[1],v[2], rgbDrawing);
-                s->draw(hdc, rgbDrawing);
+                switch (response) {
+                    case IDYES: quarter = 1; break;
+                    case IDNO:  quarter = 2; break;
+                    case IDCANCEL: {
+                        int more = MessageBoxA(hwnd, "Choose quarter:\nYes = 3rd\nNo = 4th",
+                                               "Select Quarter", MB_YESNO);
+                        quarter = (more == IDYES) ? 3 : 4;
+                        break;
+                    }
+                }
+                f = new CircleCirclesFilling(rgbFilling, v[0], v[1], steps, quarter);
+                f->fill(hdc);
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }

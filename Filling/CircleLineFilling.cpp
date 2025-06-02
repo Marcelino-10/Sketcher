@@ -1,9 +1,10 @@
 #include "CircleLineFilling.h"
+
 CircleLineFilling::CircleLineFilling(Point center, Point p, int quarter, COLORREF cf)
         : Filling(cf, cf), center(center), p(p), quarter(quarter) {}
 void CircleLineFilling::fill(HDC hdc) {
-    int xc = center.x;
-    int yc = center.y;
+    int xc = (int) center.x;
+    int yc = (int) center.y;
     int R = static_cast<int>(sqrt(pow(p.x - xc, 2) + pow(p.y - yc, 2)));
 
     for (int y = 0; y <= R; ++y) {

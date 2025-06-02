@@ -2,17 +2,6 @@
 
 CircleBresenham::CircleBresenham(Point center, Point p, COLORREF c) : Shape(c), center(center), p(p){}
 
-void draw8Points(HDC hdc, int xc, int yc, int x, int y, COLORREF c){
-    SetPixel(hdc, xc + x, yc + y, c);
-    SetPixel(hdc, xc + y, yc + x, c);
-    SetPixel(hdc, xc + x, yc - y, c);
-    SetPixel(hdc, xc + y, yc - x, c);
-    SetPixel(hdc, xc - x, yc + y, c);
-    SetPixel(hdc, xc - y, yc + x, c);
-    SetPixel(hdc, xc - x, yc - y, c);
-    SetPixel(hdc, xc - y, yc - x, c);
-}
-
 void CircleBresenham::draw(HDC hdc, COLORREF c) {
     auto [xc, yc] = center;
     double r = distance(p, center);
