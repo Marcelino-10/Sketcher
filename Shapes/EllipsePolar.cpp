@@ -36,3 +36,18 @@ void EllipsePolar::draw(HDC hdc, COLORREF c) {
         draw4Points(hdc, xc, yc, (int)X, (int)Y, c);
     }
 }
+std::string EllipsePolar::serialize() {
+    std::ostringstream ss;
+    ss << "EllipsePolar " << color << " "
+       << center.x << " " << center.y << " "
+       << radiusX.x << " " << radiusX.y << " "
+       << radiusY.x << " " << radiusY.y;
+    return ss.str();
+}
+
+Shape* EllipsePolar::deserialize(std::istream &in) {
+    COLORREF color;
+    double cx, cy, rx, ry, rxx, ryy;
+    in >> color >> cx >> cy >> rx >> ry >> rxx >> ryy;
+    return new EllipsePolar({cx, cy}, {rx, ry}, {rxx, ryy}, color);
+}

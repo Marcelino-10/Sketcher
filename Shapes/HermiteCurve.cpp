@@ -32,3 +32,21 @@ void HermiteCurve::draw(HDC hdc, COLORREF c) {
         SetPixel(hdc, Round(p.x), Round(p.y), c);
     }
 }
+string HermiteCurve::serialize() {
+    stringstream ss;
+    ss << "HermiteCurve " << this->color << " " << numPoints << " " << v.size();
+    for (const Point &p : v)
+        ss << " " << p.x << " " << p.y;
+    return ss.str();
+}
+
+Shape* HermiteCurve::deserialize(istream &in) {
+    COLORREF color;
+    int numPts, vecSize;
+    in >> color >> numPts >> vecSize;
+    vector<Point> vec(vecSize);
+    for (int i = 0; i < vecSize; ++i) {
+        in >> vec[i].x >> vec[i].y;
+    }
+    return new HermiteCurve(vec, numPts, color);
+}

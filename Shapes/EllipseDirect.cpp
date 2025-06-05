@@ -32,3 +32,18 @@ void EllipseDirect::draw(HDC hdc, COLORREF c) {
         }
     }
 }
+string EllipseDirect::serialize() {
+    stringstream ss;
+    ss << "EllipseDirect " << color << " "
+            << center.x << " " << center.y
+            << radiusX.x << " " << radiusX.y
+            << radiusY.y << " " << radiusY.y;
+    return ss.str();
+}
+
+Shape *EllipseDirect::deserialize(istream &in) {
+    COLORREF color;
+    Point c,rx,ry;
+    in >> color >> c.x >> c.y >> rx.x>>rx.y>>ry.x>>ry.y;
+    return new EllipseDirect(c, rx,ry, color);
+}

@@ -18,6 +18,8 @@ class ConvexFilling : public Filling {
 public:
     ConvexFilling(COLORREF cf, vector<Point> &v);
     void fill(HDC hdc);
+    string serialize() override;
+    static Filling* deserialize(std::istream &in);
 };
 
 #endif //GRAPHICSPROJECT_CONVEXFILLING_H

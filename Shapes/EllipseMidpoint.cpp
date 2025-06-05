@@ -59,3 +59,18 @@ void EllipseMidpoint::draw(HDC hdc, COLORREF c) {
         draw4Points(hdc, xc, yc, x, y, c);
     }
 }
+std::string EllipseMidpoint::serialize() {
+    std::ostringstream ss;
+    ss << "EllipseMidpoint " << color << " "
+       << center.x << " " << center.y << " "
+       << radiusX.x << " " << radiusX.y << " "
+       << radiusY.x << " " << radiusY.y;
+    return ss.str();
+}
+
+Shape* EllipseMidpoint::deserialize(std::istream &in) {
+    COLORREF color;
+    double cx, cy, rx, ry, rxx, ryy;
+    in >> color >> cx >> cy >> rx >> ry >> rxx >> ryy;
+    return new EllipseMidpoint({cx, cy}, {rx, ry}, {rxx, ryy}, color);
+}

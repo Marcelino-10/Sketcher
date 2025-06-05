@@ -28,6 +28,8 @@ public:
     void polygon2Table(vector<Point> &v);
     void table2Screen(HDC hdc);
     void fill(HDC hdc);
+    std::string serialize() override;
+    static Filling* deserialize(std::istream &in);
 };
 
 

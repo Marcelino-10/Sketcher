@@ -14,5 +14,7 @@ class EllipsePolar : public Shape {
 public:
     EllipsePolar(Point center, Point radiusX, Point radiusY, COLORREF c);
     void draw(HDC hdc, COLORREF c);
+    std::string serialize() override;
+    static Shape* deserialize(std::istream &in);
 };
 #endif //SKETCHER_ELLIPSEPOLAR_H

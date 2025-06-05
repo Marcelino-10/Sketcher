@@ -11,6 +11,8 @@ class FloodFilling : public Filling{
 public:
     FloodFilling(COLORREF cf, COLORREF cb, Point begin);
     void fill(HDC hdc);
+    std::string serialize() override;
+    static Filling* deserialize(std::istream &in);
 };
 
 

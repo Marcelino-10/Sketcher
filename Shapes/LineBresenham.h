@@ -12,6 +12,8 @@ class LineBresenham : public Shape {
 public:
     LineBresenham(Point p1, Point p2, COLORREF c);
     void draw(HDC hdc, COLORREF c);
+    std::string serialize() override;
+    static Shape* deserialize(std::istream &in);
 };
 
 

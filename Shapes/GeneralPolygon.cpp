@@ -10,3 +10,21 @@ void GeneralPolygon::draw(HDC hdc, COLORREF c) {
         p = v[i];
     }
 }
+string GeneralPolygon::serialize() {
+    stringstream ss;
+    ss << "GeneralPolygon " << this->color << " " << v.size();
+    for (const Point &p : v)
+        ss << " " << p.x << " " << p.y;
+    return ss.str();
+}
+
+Shape* GeneralPolygon::deserialize(istream &in) {
+    COLORREF color;
+    int  vecSize;
+    in >> color >> vecSize;
+    vector<Point> vec(vecSize);
+    for (int i = 0; i < vecSize; ++i) {
+        in >> vec[i].x >> vec[i].y;
+    }
+    return new GeneralPolygon(vec, color);
+}

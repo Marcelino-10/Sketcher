@@ -86,3 +86,26 @@ void GeneralFilling::fill(HDC hdc) {
     polygon2Table(this->v);
     table2Screen(hdc);
 }
+
+string GeneralFilling::serialize() {
+    stringstream ss;
+
+    ss << "GeneralFilling " << cf <<" "<<v.size();
+    for(auto p:v) {
+        ss<<" "<<p.x<<" "<<p.y;
+    }
+    return ss.str();
+}
+
+Filling* GeneralFilling::deserialize(std::istream &in) {
+    COLORREF cf;
+    int vecSz;
+    in >> cf >> vecSz;
+    vector<Point>v;
+    int x,y;
+    for (int i=0;i<vecSz;i++) {
+        in>>x>>y;
+        v.push_back(Point(x,y));
+    }
+    return new GeneralFilling(cf, v);
+}

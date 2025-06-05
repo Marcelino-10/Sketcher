@@ -61,3 +61,21 @@ void CircleCirclesFilling::fill(HDC hdc) {
             drawCircle(hdc, cf, center, i, false, quarter);
     }
 }
+
+string CircleCirclesFilling::serialize() {
+    stringstream ss;
+
+    ss << "CircleCirclesFilling " << cf << " "
+            <<center.x<<" "<<center.y<<" "
+            <<p.x<<" "<<p.y<<" "
+            <<step<<" "<<quarter;
+    return ss.str();
+}
+
+Filling* CircleCirclesFilling::deserialize(std::istream &in) {
+    COLORREF cf;
+    Point center ,p;
+    int step,quarter;
+    in >> cf >> center.x >> center.y >> p.x>>p.y>>step>>quarter;
+    return new CircleCirclesFilling(cf, center, p,step,quarter);
+}

@@ -37,3 +37,22 @@ void BezierCurveMatrix::draw(HDC hdc, COLORREF c) {
         SetPixel(hdc, Round(p.x), Round(p.y), c);
     }
 }
+
+string BezierCurveMatrix::serialize() {
+    stringstream ss;
+    ss << "BezierCurveMatrix " << this->color << " " << numPoints << " " << v.size();
+    for (const Point &p : v)
+        ss << " " << p.x << " " << p.y;
+    return ss.str();
+}
+
+Shape* BezierCurveMatrix::deserialize(istream &in) {
+    COLORREF color;
+    int numPts, vecSize;
+    in >> color >> numPts >> vecSize;
+    vector<Point> vec(vecSize);
+    for (int i = 0; i < vecSize; ++i) {
+        in >> vec[i].x >> vec[i].y;
+    }
+    return new BezierCurveMatrix(vec, numPts, color);
+}

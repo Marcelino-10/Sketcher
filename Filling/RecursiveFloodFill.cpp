@@ -17,3 +17,18 @@ void RecursiveFloodFill::recFill(HDC hdc, int x, int y) {
     recFill(hdc, x, y + 1);
     recFill(hdc, x, y - 1);
 }
+
+string RecursiveFloodFill::serialize() {
+    stringstream ss;
+
+    ss << "RecursiveFloodFill " << cf << " " << cb
+            << " " << begin.x << " " << begin.y;
+    return ss.str();
+}
+
+Filling *RecursiveFloodFill::deserialize(std::istream &in) {
+    COLORREF cf, cb;
+    Point begin;
+    in >> cf >> cb >> begin.x >> begin.y;
+    return new RecursiveFloodFill(cf, cb, begin);
+}

@@ -13,6 +13,8 @@ class GeneralPolygon : public Shape {
 public:
     GeneralPolygon(vector<Point> &v, COLORREF c);
     void draw(HDC hdc, COLORREF c);
+    std::string serialize() override;
+    static Shape* deserialize(std::istream &in);
 };
 
 #endif //GRAPHICSPROJECT_GENERALPOLYGON_H

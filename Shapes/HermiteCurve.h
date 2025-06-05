@@ -14,6 +14,8 @@ class HermiteCurve : public Shape {
 public:
     HermiteCurve(vector<Point> &v, int numPoints, COLORREF c);
     void draw(HDC hdc, COLORREF c);
+    std::string serialize() override;
+    static Shape* deserialize(std::istream &in);
 };
 
 

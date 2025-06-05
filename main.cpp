@@ -1,6 +1,8 @@
 #include <iostream>
 #include <Windows.h>
 #include <commdlg.h>
+#include <fstream>
+
 #include "Shapes/Point.h"
 #include "Shapes/Shape.h"
 #include "Filling/Filling.h"
@@ -75,9 +77,15 @@
 #define CrossMouse_ID 5100
 #define HandMouse_ID 5200
 #define NoMouse_ID 5300
+//Background Color
 #define BackgroundColorPicker_ID 3000
+//#define Clear and save and load
+#define ClearScreen_ID 4000
+#define SaveToFile_ID 5001
+#define LoadFromFile_ID 6000
 using namespace std;
-
+vector<Shape*> drawnShapes;
+vector<Filling*> drawnFillings;
 HMENU hMenu;
 
 void AddCurvesMenu(HWND hwnd) {
@@ -211,6 +219,104 @@ void AddBackgroundPicker(HWND hwnd) {
         InvalidateRect(hwnd, NULL, TRUE);  // Redraw with new background
     }
 }
+void SaveToFile(HWND hwnd ) {
+    char fileName[MAX_PATH] = "";
+    OPENFILENAME ofn = {};
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hwnd;
+    ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0";
+    ofn.lpstrFile = fileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_OVERWRITEPROMPT;
+    ofn.lpstrDefExt = "txt";
+
+    if (GetSaveFileName(&ofn)) {
+        std::ofstream out(fileName);
+        if (!out)
+            return;
+        for (Shape* shape : drawnShapes)
+            out << shape->serialize() << "\n";
+        for (Filling* filling : drawnFillings)
+            out << filling->serialize() << "\n";
+        out.close();
+        MessageBox(hwnd, "Shapes saved!", "Success", MB_OK);
+    }
+}
+void LoadFromFile(HWND hwnd) {
+    char fileName[MAX_PATH] = "";
+    OPENFILENAME ofn = {};
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hwnd;
+    ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0";
+    ofn.lpstrFile = fileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_FILEMUSTEXIST;
+    ofn.lpstrDefExt = "txt";
+
+    if (GetOpenFileName(&ofn)) {
+        std::ifstream in(fileName);
+        if (!in)
+            return;;
+
+        drawnShapes.clear();
+        drawnFillings.clear();
+        std::string type;
+        while (in >> type) {
+            if (type == "BezierCurve")
+                drawnShapes.push_back(BezierCurve::deserialize(in));
+            else if (type == "BezierCurveMatrix")
+                drawnShapes.push_back(BezierCurveMatrix::deserialize(in));
+            else if (type == "BezierCurveMidpoint")
+                drawnShapes.push_back(BezierCurveMidpoint::deserialize(in));
+            else if (type == "HermiteCurve")
+                drawnShapes.push_back(HermiteCurve::deserialize(in));
+            else if (type == "CardinalSpline")
+                drawnShapes.push_back(CardinalSpline::deserialize(in));
+            else if (type == "GeneralPolygon")
+                drawnShapes.push_back(GeneralPolygon::deserialize(in));
+            else if (type == "LinesDDA")
+                drawnShapes.push_back(LinesDDA::deserialize(in));
+            else if (type == "LineBresenham")
+                drawnShapes.push_back(LineBresenham::deserialize(in));
+            else if (type == "LineParametric")
+                drawnShapes.push_back(LineParametric::deserialize(in));
+            else if (type == "CircleBresenham")
+                drawnShapes.push_back(CircleBresenham::deserialize(in));
+            else if (type == "DirectCircle")
+                drawnShapes.push_back(DirectCircle::deserialize(in));
+            else if (type == "PolarCircle")
+                drawnShapes.push_back(PolarCircle::deserialize(in));
+            else if (type == "IterativePolar")
+                drawnShapes.push_back(IterativePolar::deserialize(in));
+            else if (type == "EllipseDirect")
+                drawnShapes.push_back(EllipseDirect::deserialize(in));
+            else if (type == "EllipsePolar")
+                drawnShapes.push_back(EllipsePolar::deserialize(in));
+            else if (type == "EllipseMidpoint")
+                drawnShapes.push_back(EllipseMidpoint::deserialize(in));
+            else if (type == "Square")
+                drawnShapes.push_back(Square::deserialize(in));
+            else if (type == "Rectangular")
+                drawnShapes.push_back(Rectangular::deserialize(in));
+            else if (type == "CircleCirclesFilling")
+                drawnFillings.push_back(CircleCirclesFilling::deserialize(in));
+            else if (type == "CircleLineFilling")
+                drawnFillings.push_back(CircleLineFilling::deserialize(in));
+            else if (type == "ConvexFilling")
+                drawnFillings.push_back(ConvexFilling::deserialize(in));
+            else if (type == "FloodFilling")
+                drawnFillings.push_back(FloodFilling::deserialize(in));
+            else if (type == "GeneralFilling")
+                drawnFillings.push_back(GeneralFilling::deserialize(in));
+            else if (type == "RecursiveFloodFill")
+                drawnFillings.push_back(RecursiveFloodFill::deserialize(in));
+        }
+
+        InvalidateRect(hwnd, NULL, TRUE);
+        MessageBox(hwnd, "Shapes loaded!", "Success", MB_OK);
+    }
+}
+
 LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
     HDC hdc;
     static Shape *s;
@@ -340,25 +446,68 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
                 case BackgroundColorPicker_ID:
                     AddBackgroundPicker(hwnd);
                     break;
+                case ClearScreen_ID:
+                    InvalidateRect(hwnd, NULL, TRUE);  // Triggers WM_ERASEBKGND
+                    v.clear(); // Clear all drawing points
+                    drawnShapes.clear();
+                    drawnFillings.clear();
+                    break;
+                case SaveToFile_ID:
+                {
+                    SaveToFile(hwnd);
+                    break;
+                }
+                case LoadFromFile_ID: {
+                    LoadFromFile(hwnd);
+                    break;
+                }
+
+                CreateWindow(
+                "BUTTON", "Load Drawing",
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                1024, 140, 160, 40,
+                hwnd, (HMENU)LoadFromFile_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
             }
             break;
-        case WM_CREATE:
-            CreateWindow(
-                    "BUTTON", "Pick a Color",
-                    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                    1024, 20, 100, 40,
-                    hwnd, (HMENU) ColorPicker_ID, (HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
-            CreateWindow(
-                    "BUTTON", "Pick a Filling Color",
-                    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                    800, 20, 200, 40,
-                    hwnd, (HMENU) ColorFillingPicker_ID, (HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
-            CreateWindow(
-                    "BUTTON", "Pick Background Color",
-                    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-                    930, 80, 160, 40,
-                    hwnd, (HMENU)BackgroundColorPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
-            break;
+        case WM_CREATE: {
+            // Row 1: Color pickers
+            int baseX = 20;
+            int spacing = 170;
+            int btnW = 160;
+            int btnH = 40;
+
+            CreateWindow("BUTTON", "Pick a Color",
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                baseX, 20, btnW, btnH,
+                hwnd, (HMENU)ColorPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+
+            CreateWindow("BUTTON", "Pick Filling Color",
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                baseX + spacing, 20, btnW, btnH,
+                hwnd, (HMENU)ColorFillingPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+
+            // Row 2: Background + Clear
+            CreateWindow("BUTTON", "Pick Background Color",
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                baseX, 80, btnW, btnH,
+                hwnd, (HMENU)BackgroundColorPicker_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+
+            CreateWindow("BUTTON", "Clear Screen",
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                baseX + spacing, 80, btnW, btnH,
+                hwnd, (HMENU)ClearScreen_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+
+            // Row 3: Save + Load
+            CreateWindow("BUTTON", "Save Drawing",
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                baseX, 140, btnW, btnH,
+                hwnd, (HMENU)SaveToFile_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+
+            CreateWindow("BUTTON", "Load Drawing",
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                baseX + spacing, 140, btnW, btnH,
+                hwnd, (HMENU)LoadFromFile_ID, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), nullptr);
+        }
 
         case WM_SETCURSOR:
             SetCursor(hCursor);
@@ -664,6 +813,14 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
                 v.clear();
                 ReleaseDC(hwnd, hdc);
             }
+            if(s!=nullptr) {
+                drawnShapes.push_back(s);
+                s=nullptr;
+            }
+            if(f!=nullptr) {
+                drawnFillings.push_back(f);
+                f=nullptr;
+            }
             break;
         case WM_CLOSE:
             DestroyWindow(hwnd);
@@ -676,9 +833,11 @@ LRESULT WndProc(HWND hwnd, UINT m, WPARAM wp, LPARAM lp) {
             HDC hdc = BeginPaint(hwnd, &ps);
             RECT rect;
             GetClientRect(hwnd, &rect);
-            HBRUSH hBrush = CreateSolidBrush(rgbBackground);
-            FillRect(hdc, &rect, hBrush);
-            DeleteObject(hBrush);
+            FillRect(hdc, &rect, CreateSolidBrush(rgbBackground));
+            for (Shape* shape : drawnShapes)
+                shape->draw(hdc, rgbDrawing);
+            for (Filling* filling : drawnFillings)
+                filling->fill(hdc);
             EndPaint(hwnd, &ps);
             break;
         }

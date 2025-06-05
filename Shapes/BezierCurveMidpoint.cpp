@@ -30,3 +30,21 @@ void BezierCurveMidpoint::BezierCurveDrawing(HDC hdc, vector<Point> p, COLORREF 
     BezierCurveDrawing(hdc, left, c);
     BezierCurveDrawing(hdc, right, c);
 }
+string BezierCurveMidpoint::serialize() {
+    stringstream ss;
+    ss << "BezierCurveMidpoint " << this->color << " " << numPoints << " " << v.size();
+    for (const Point &p : v)
+        ss << " " << p.x << " " << p.y;
+    return ss.str();
+}
+
+Shape* BezierCurveMidpoint::deserialize(istream &in) {
+    COLORREF color;
+    int numPts, vecSize;
+    in >> color >> numPts >> vecSize;
+    vector<Point> vec(vecSize);
+    for (int i = 0; i < vecSize; ++i) {
+        in >> vec[i].x >> vec[i].y;
+    }
+    return new BezierCurveMidpoint(vec, numPts, color);
+}
