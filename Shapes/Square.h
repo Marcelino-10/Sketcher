@@ -25,6 +25,8 @@ public:
     int getMaxY();
     int getLeftX(int y);
     int getRightX(int y);
+    std::string serialize() override;
+    static Shape* deserialize(std::istream &in);
 };
 
 #endif //SKETCHER_SQUARE_H

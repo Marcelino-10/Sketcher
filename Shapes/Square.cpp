@@ -103,3 +103,17 @@ void Square::hermitCurveFill(HDC hdc, COLORREF c) {
         drawHermitLine(hdc, p0, p1, t0, t1, c);
     }
 }
+string Square::serialize() {
+    stringstream ss;
+    ss << "Square " << color << " "
+            << point1.x << " " << point1.y<<" "
+            << point2.x << " " << point2.y;
+    return ss.str();
+}
+
+Shape *Square::deserialize(istream &in) {
+    COLORREF color;
+    Point point1,point2;
+    in >> color >> point1.x >> point1.y >> point2.x>>point2.y;
+    return new Square(point1, point2, color);
+}

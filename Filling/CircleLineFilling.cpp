@@ -1,7 +1,9 @@
 #include "CircleLineFilling.h"
 
 CircleLineFilling::CircleLineFilling(Point center, Point p, int quarter, COLORREF cf)
-        : Filling(cf, cf), center(center), p(p), quarter(quarter) {}
+    : Filling(cf, cf), center(center), p(p), quarter(quarter) {
+}
+
 void CircleLineFilling::fill(HDC hdc) {
     int xc = (int) center.x;
     int yc = (int) center.y;
@@ -45,4 +47,22 @@ void CircleLineFilling::fill(HDC hdc) {
                 break;
         }
     }
+}
+
+string CircleLineFilling::serialize() {
+    stringstream ss;
+
+    ss << "CircleLineFilling " << cf << " "
+            << center.x << " " << center.y << " "
+            << p.x << " " << p.y << " "
+            << " " << quarter;
+    return ss.str();
+}
+
+Filling *CircleLineFilling::deserialize(std::istream &in) {
+    COLORREF cf;
+    Point center, p;
+    int step, quarter;
+    in >> cf >> center.x >> center.y >> p.x >> p.y >> quarter;
+    return new CircleLineFilling(center, p, quarter, cf);
 }

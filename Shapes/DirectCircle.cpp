@@ -24,3 +24,17 @@ void DirectCircle::draw(HDC hdc, COLORREF c) {
         x++;
     }
 }
+std::string DirectCircle::serialize()  {
+    std::ostringstream ss;
+    ss << "DirectCircle " << color << " "
+       << center.x << " " << center.y << " "
+       << p.x << " " << p.y;
+    return ss.str();
+}
+
+Shape* DirectCircle::deserialize(std::istream &in) {
+    COLORREF color;
+    double cx, cy, px, py;
+    in >> color >> cx >> cy >> px >> py;
+    return new DirectCircle(Point{cx, cy}, Point{px, py}, color);
+}

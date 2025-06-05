@@ -30,6 +30,8 @@ public:
     void draw(HDC hdc, COLORREF c);
 
     void fill(HDC hdc, COLORREF c);
+    std::string serialize() override;
+    static Shape* deserialize(std::istream &in);
 };
 
 #endif //SKETCHER_RECTANGULAR_H

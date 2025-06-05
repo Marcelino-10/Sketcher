@@ -51,4 +51,18 @@ void LineBresenham::draw(HDC hdc, COLORREF c) {
         }
     }
 }
+string LineBresenham::serialize() {
+    stringstream ss;
+    ss << "LineBresenham " << color << " "
+            << p1.x << " " << p1.y
+            <<" "<< p2.x << " " << p2.y;
+    return ss.str();
+}
+
+Shape *LineBresenham::deserialize(istream &in) {
+    COLORREF color;
+    Point p1,p2;
+    in >> color >> p1.x >> p1.y >> p2.x>>p2.y;
+    return new LineBresenham(p1, p2, color);
+}
 

@@ -13,6 +13,8 @@ class CircleCirclesFilling : public Filling {
 public:
     CircleCirclesFilling(COLORREF cf, Point center, Point p, int step, int quarter);
     void fill(HDC hdc);
+    string serialize() override;
+    static Filling* deserialize(std::istream &in);
 
 };
 

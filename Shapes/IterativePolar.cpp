@@ -1,7 +1,8 @@
 #include "IterativePolar.h"
 #include <cmath>
 
-IterativePolar::IterativePolar(Point center, Point p, COLORREF c): Shape(c), center(center), p(p) {}
+IterativePolar::IterativePolar(Point center, Point p, COLORREF c): Shape(c), center(center), p(p) {
+}
 
 void IterativePolar::draw8Points(HDC hdc, int xc, int yc, int x, int y, COLORREF c) {
     SetPixel(hdc, xc + x, yc + y, c);
@@ -30,4 +31,19 @@ void IterativePolar::draw(HDC hdc, COLORREF c) {
         y = x * st + y * ct;
         x = x1;
     }
+}
+
+string IterativePolar::serialize() {
+    stringstream ss;
+    ss << "IterativePolar " << color << " "
+            << center.x << " " << center.y
+            <<" "<< p.x << " " << p.y;
+    return ss.str();
+}
+
+Shape *IterativePolar::deserialize(istream &in) {
+    COLORREF color;
+    Point c,p;
+    in >> color >> c.x >> c.y >> p.x>>p.y;
+    return new IterativePolar(c, p, color);
 }

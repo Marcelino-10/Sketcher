@@ -13,3 +13,17 @@ void LineParametric::draw(HDC hdc, COLORREF c) {
         SetPixel(hdc, Round(x), Round(y), c);
     }
 }
+string LineParametric::serialize() {
+    stringstream ss;
+    ss << "LineParametric " << color << " "
+            << p1.x << " " << p1.y
+            <<" "<< p2.x << " " << p2.y;
+    return ss.str();
+}
+
+Shape *LineParametric::deserialize(istream &in) {
+    COLORREF color;
+    Point p1,p2;
+    in >> color >> p1.x >> p1.y >> p2.x>>p2.y;
+    return new LineParametric(p1, p2, color);
+}

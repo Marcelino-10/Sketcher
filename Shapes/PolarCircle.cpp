@@ -28,3 +28,17 @@ void PolarCircle::draw(HDC hdc, COLORREF c) {
         theta += dtheta;
     }
 }
+string PolarCircle::serialize() {
+    stringstream ss;
+    ss << "PolarCircle " << color << " "
+            << center.x << " " << center.y
+            <<" "<< p.x << " " << p.y;
+    return ss.str();
+}
+
+Shape *PolarCircle::deserialize(istream &in) {
+    COLORREF color;
+    Point c,p;
+    in >> color >> c.x >> c.y >> p.x>>p.y;
+    return new PolarCircle(c, p, color);
+}

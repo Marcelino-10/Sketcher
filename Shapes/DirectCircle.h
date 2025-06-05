@@ -10,6 +10,8 @@ class DirectCircle : public Shape {
 public:
     DirectCircle(Point center, Point p, COLORREF c);
     void draw(HDC hdc, COLORREF c);
+    string serialize() override;
+    static Shape* deserialize(istream &in);
 };
 
 

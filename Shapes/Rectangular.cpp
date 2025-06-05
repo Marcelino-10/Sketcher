@@ -79,3 +79,17 @@ void Rectangular::fill(HDC hdc, COLORREF c) {
     fillColor = c;
     bezierCurveFill(hdc, c);
 }
+string Rectangular::serialize() {
+    stringstream ss;
+    ss << "Rectangular " << color << " "
+            << point1.x << " " << point1.y<<" "
+            << point2.x << " " << point2.y;
+    return ss.str();
+}
+
+Shape *Rectangular::deserialize(istream &in) {
+    COLORREF color;
+    Point point1,point2;
+    in >> color >> point1.x >> point1.y >> point2.x>>point2.y;
+    return new Rectangular(point1, point2, color);
+}

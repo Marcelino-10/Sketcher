@@ -11,5 +11,7 @@ class CircleLineFilling : public Filling {
 public:
     CircleLineFilling(Point center, Point p, int quarter, COLORREF cf);
     void fill(HDC hdc) override;
+    string serialize() override;
+    static Filling* deserialize(std::istream &in);
 };
 #endif //SKETCHER_CIRCLELINEFILLING_H

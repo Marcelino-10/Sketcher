@@ -85,3 +85,25 @@ void drawConvexScanLineFilling(HDC hdc, vector<Point> &p, COLORREF c){
 void ConvexFilling::fill(HDC hdc) {
     drawConvexScanLineFilling(hdc, v, cf);
 }
+string ConvexFilling::serialize() {
+    stringstream ss;
+
+    ss << "ConvexFilling " << cf <<" "<<v.size();
+    for(auto p:v) {
+        ss<<" "<<p.x<<" "<<p.y;
+    }
+    return ss.str();
+}
+
+Filling* ConvexFilling::deserialize(std::istream &in) {
+    COLORREF cf;
+    int vecSz;
+    in >> cf >> vecSz;
+    vector<Point>v;
+    int x,y;
+    for (int i=0;i<vecSz;i++) {
+        in>>x>>y;
+        v.push_back(Point(x,y));
+    }
+    return new ConvexFilling(cf, v);
+}

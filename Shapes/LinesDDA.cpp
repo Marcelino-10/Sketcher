@@ -1,5 +1,7 @@
 #include "LinesDDA.h"
 
+#include <iostream>
+
 LinesDDA::LinesDDA(Point p1, Point p2, COLORREF c) : Shape(c), p1(p1), p2(p2){}
 
 void LinesDDA::draw(HDC hdc, COLORREF c) {
@@ -37,4 +39,18 @@ void LinesDDA::draw(HDC hdc, COLORREF c) {
 void LineeDDA(HDC hdc, Point p1, Point p2, COLORREF c) {
     LinesDDA line(p1, p2, c);
     line.draw(hdc, c);
+}
+string LinesDDA::serialize() {
+    stringstream ss;
+    ss << "LinesDDA " << color << " "
+            << p1.x << " " << p1.y<<" "
+            << p2.x << " " << p2.y;
+    return ss.str();
+}
+
+Shape *LinesDDA::deserialize(istream &in) {
+    COLORREF color;
+    Point p1,p2;
+    in >> color >> p1.x >> p1.y >> p2.x>>p2.y;
+    return new LinesDDA(p1, p2, color);
 }

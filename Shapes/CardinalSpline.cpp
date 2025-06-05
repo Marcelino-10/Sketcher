@@ -13,3 +13,21 @@ void CardinalSpline::draw(HDC hdc, COLORREF co) {
         h.draw(hdc, co);
     }
 }
+string CardinalSpline::serialize() {
+    stringstream ss;
+    ss << "CardinalSpline " << this->color << " " << numPoints <<" "<<c << " " << v.size();
+    for (const Point &p : v)
+        ss << " " << p.x << " " << p.y;
+    return ss.str();
+}
+
+Shape* CardinalSpline::deserialize(istream &in) {
+    COLORREF color;
+    int numPts, vecSize,c;
+    in >> color >> numPts>> c >> vecSize;
+    vector<Point> vec(vecSize);
+    for (int i = 0; i < vecSize; ++i) {
+        in >> vec[i].x >> vec[i].y;
+    }
+    return new CardinalSpline(vec,c, numPts, color);
+}

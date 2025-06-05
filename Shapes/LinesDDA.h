@@ -12,6 +12,8 @@ class LinesDDA : public Shape{
 public:
     LinesDDA(Point p1, Point p2, COLORREF c);
     void draw(HDC hdc, COLORREF c) override;
+    std::string serialize() override;
+    static Shape* deserialize(std::istream &in);
 };
 
 void LineeDDA(HDC hdc, Point p1, Point p2, COLORREF c);
